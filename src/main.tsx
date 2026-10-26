@@ -9,8 +9,10 @@ import 'katex/dist/katex.min.css';
 import './styles/tokens.css';
 import './styles/global.css';
 import { App } from './App';
+import { escucharInstalacion } from './store/instalacion';
 
 registerSW({ immediate: true });
+escucharInstalacion();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

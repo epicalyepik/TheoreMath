@@ -262,4 +262,14 @@ Consejo: elegí la ventana `x`/`y` de modo que lo importante quede centrado, y c
 3. **Desde un link**: pegá el link a un `.json`/`.zip` público, a un archivo de GitHub o a una **carpeta de GitHub** (`https://github.com/usuario/repo/tree/main/carpeta`). Lo importado por link se puede **actualizar** después desde el menú `⋯` de la ficha.
 4. Si algo está mal, la app importa lo que sirve y lista los avisos (archivo, carta y campo). Copiá esos avisos y pasáselos a la IA para que lo corrija.
 
-Para compartir un mazo con alguien: `https://<la-app>/#/importar?url=<link-al-json>`.
+Para compartir un mazo con alguien: `https://teorem.netlify.app/#/importar?url=<link-al-json>`.
+
+### Copias de la biblioteca
+
+*Ayuda → Tus datos → Exportar copia* genera un archivo con varios nodos raíz:
+
+```json
+{ "formato": "theoremath@1", "biblioteca": [ { "id": "analisis-matematico", "titulo": "…", "hijos": [ … ] }, … ] }
+```
+
+Se importa como cualquier otro `.json`. La IA no necesita generar este formato: es solo para respaldos y para pasar la biblioteca de un dispositivo a otro.

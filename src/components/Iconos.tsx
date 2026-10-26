@@ -108,6 +108,14 @@ export const IconoBorrar = (p: P) => (
   </svg>
 );
 
+export const IconoAyuda = (p: P) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.7" />
+    <circle cx="12" cy="16.9" r="0.9" fill="currentColor" stroke="none" />
+  </svg>
+);
+
 export const IconoAbanico = (p: P) => (
   <svg {...base} {...p}>
     <rect x="4" y="4" width="6.5" height="6.5" rx="1.4" />

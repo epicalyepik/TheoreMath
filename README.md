@@ -4,16 +4,23 @@ Machete de teoremas y fórmulas en forma de **mazo de cartas**, pensado para el 
 
 Todo el contenido sale de **archivos JSON** que podés generar con una IA siguiendo la guía de formato.
 
-## Usarla en el celular
+**App: https://teorem.netlify.app**
 
-La app es una **PWA**: una página web que se instala como app y funciona sin internet.
+## Instalarla
 
-1. Abrí `https://epicalyepik.github.io/TheoreMath/` en el celular.
-2. **Android (Chrome):** menú `⋮` → *Instalar app* / *Agregar a pantalla principal*.
-   **iPhone (Safari):** botón compartir → *Agregar a inicio*.
-3. Se abre a pantalla completa, sin barra del navegador, y funciona offline.
+La app es una **PWA**: una página web que se instala como app, se abre en su propia ventana y funciona sin internet. Adentro de la app, el botón **?** de Cuadernos tiene la guía completa (con un botón *Instalar* cuando el navegador lo permite).
 
-No hay base de datos ni cuenta: tus cuadernos se guardan **en el propio teléfono** (IndexedDB). Cada dispositivo tiene su biblioteca. Para tener lo mismo en varios, subí tus JSON a un repo de GitHub e importalos por link (ver abajo); después *Actualizar desde el link* trae la última versión.
+| Dispositivo | Cómo |
+| ----------- | ---- |
+| Android (Chrome) | Menú `⋮` → *Instalar app* / *Agregar a pantalla principal* |
+| iPhone / iPad (Safari) | Botón Compartir → *Agregar a inicio* |
+| PC (Chrome) | Ícono de instalar en la barra de direcciones, o menú `⋮` → *Transmitir, guardar y compartir* → *Instalar página como app* |
+| PC (Edge) | Menú `…` → *Aplicaciones* → *Instalar este sitio como aplicación* |
+| Mac (Safari) | *Archivo* → *Agregar al Dock* |
+
+En la PC, la sección de Ayuda muestra un código QR para abrir la app en el celular.
+
+No hay base de datos ni cuenta: tus cuadernos se guardan **en el propio dispositivo** (IndexedDB) y cada uno tiene su biblioteca. Para pasarlos a otro: **Ayuda → Tus datos → Exportar copia**, y en el otro dispositivo importás ese .json. También podés subir tus JSON a GitHub e importarlos por link; después *Actualizar desde el link* trae la última versión.
 
 ## Crear contenido con IA
 
@@ -41,7 +48,7 @@ Si algo está mal, la app importa lo que sirve y lista los avisos (archivo, cart
 
 Google Drive no sirve: no permite descargas desde otras páginas.
 
-Para compartir un mazo: `https://epicalyepik.github.io/TheoreMath/#/importar?url=<link>`.
+Para compartir un mazo: `https://teorem.netlify.app/#/importar?url=<link>`.
 
 ## Gestos
 
@@ -53,8 +60,11 @@ Para compartir un mazo: `https://epicalyepik.github.io/TheoreMath/#/importar?url
 | Tocar el contador `03 / 24`             | Ver todas las cartas del mazo y saltar          |
 | Mantener apretada una fórmula           | Copiar su LaTeX                                 |
 | Botón ojo                               | Modo práctica: tapa la respuesta hasta tocarla  |
+| Botón de cuadrícula                     | Vista general: todas las cartas en miniatura    |
 | Botón flechas cruzadas                  | Mezclar el mazo                                 |
 | Teclado (computadora)                   | `←` `→` navegar, `↑` / espacio voltear, `↓` / Esc volver |
+
+En PC y tablet las cartas se ven en fila sobre la mesa (la actual al centro y las vecinas a los costados): se arrastran con el mouse, se pasan con el touchpad o se elige una haciendo clic.
 
 ## Desarrollo
 
@@ -69,4 +79,4 @@ Stack: Vite + React + TypeScript, KaTeX para las fórmulas, zod para validar el 
 
 ### Publicación
 
-El workflow `.github/workflows/deploy.yml` compila y publica en GitHub Pages en cada push a `main`. Configuración única: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+Está en Netlify, que compila y publica solo con cada push a `main` usando `netlify.toml` (`npm run build` → `dist/`). El CI de GitHub (`.github/workflows/ci.yml`) corre los tests y el build en cada rama y PR.

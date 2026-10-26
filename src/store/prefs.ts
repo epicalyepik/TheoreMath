@@ -35,6 +35,10 @@ export function setPrefs(f: (p: Prefs) => Prefs) {
   oyentes.forEach((o) => o());
 }
 
+export function resetPrefs() {
+  setPrefs(() => defecto);
+}
+
 export function getPrefs() {
   return prefs;
 }

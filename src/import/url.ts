@@ -50,17 +50,34 @@ async function descargar(url: string | URL): Promise<Uint8Array> {
   return new Uint8Array(await r.arrayBuffer());
 }
 
-async function entradasGitHub(g: RepoGitHub): Promise<Entrada[]> {
-  const api = `https://api.github.com/repos/${g.owner}/${g.repo}`;
-  let rama = g.rama;
-  if (!rama) {
-    const info = JSON.parse(new TextDecoder().decode(await descargar(api)));
-    rama = info.default_branch;
+const leerJson = async (url: string) => JSON.parse(new TextDecoder().decode(await descargar(url)));
+
+async function entradasGitHub(g0: RepoGitHub): Promise<Entrada[]> {
+  const api = `https://api.github.com/repos/${g0.owner}/${g0.repo}`;
+  let g = g0;
+  let arbol: { tree: { path: string; type: string }[] } | undefined;
+  if (!g.rama) {
+    g = { ...g, rama: (await leerJson(api)).default_branch };
+    arbol = await leerJson(`${api}/git/trees/${encodeURIComponent(g.rama)}?recursive=1`);
+  } else {
+    // En la URL no se distingue dónde termina la rama ("feature/x") y empieza la ruta:
+    // se prueba con 1, 2, 3… segmentos hasta que la rama exista.
+    const partes = [g.rama, ...g.ruta.split('/').filter(Boolean)];
+    for (let n = 1; n <= Math.min(partes.length, 5) && !arbol; n++) {
+      const rama = partes.slice(0, n).join('/');
+      try {
+        arbol = await leerJson(`${api}/git/trees/${encodeURIComponent(rama)}?recursive=1`);
+        g = { ...g, rama, ruta: partes.slice(n).join('/') };
+      } catch (e) {
+        if (n === Math.min(partes.length, 5)) throw e;
+      }
+    }
   }
-  const arbol = JSON.parse(new TextDecoder().decode(await descargar(`${api}/git/trees/${encodeURIComponent(rama)}?recursive=1`)));
+  if (!arbol) throw new Error('no se encontró la rama en GitHub');
+  const rama = g.rama;
   const prefijo = g.ruta ? g.ruta.replace(/\/$/, '') + '/' : '';
   const base = g.ruta ? g.ruta.split('/').slice(0, -1).join('/') : '';
-  const blobs: string[] = (arbol.tree as { path: string; type: string }[])
+  const blobs: string[] = arbol.tree
     .filter((t) => t.type === 'blob' && t.path.startsWith(prefijo) && t.path.toLowerCase().endsWith('.json'))
     .map((t) => t.path)
     .filter((p) => !p.split('/').some((s) => s.startsWith('.')) && !/(^|\/)(package(-lock)?|tsconfig.*)\.json$/.test(p));

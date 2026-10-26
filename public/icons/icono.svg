@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="f" cx="50%" cy="0%" r="110%">
+      <stop offset="0" stop-color="#14303d"/>
+      <stop offset="0.55" stop-color="#0c141c"/>
+      <stop offset="1" stop-color="#160f1c"/>
+    </radialGradient>
+    <filter id="g" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#080d13"/>
+  <rect x="150" y="88" width="236" height="320" rx="30" fill="#0e1720" stroke="#ff5ca8" stroke-opacity="0.55" stroke-width="5" transform="rotate(9 268 248)"/>
+  <rect x="126" y="104" width="236" height="320" rx="30" fill="url(#f)" stroke="#9fd3ea" stroke-opacity="0.45" stroke-width="5"/>
+  <rect x="142" y="120" width="204" height="288" rx="18" fill="none" stroke="#9fd3ea" stroke-opacity="0.18" stroke-width="3"/>
+  <path d="M244 160 l12 -12 l12 12 l-12 12 z" fill="#5ce8ff"/>
+  <text x="244" y="330" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="150" fill="#5ce8ff" filter="url(#g)" opacity="0.6">∀</text>
+  <text x="244" y="330" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="150" fill="#5ce8ff">∀</text>
+</svg>

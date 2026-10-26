@@ -1,0 +1,188 @@
+{
+  "formato": "theoremath@1",
+  "id": "limites-y-continuidad",
+  "titulo": "Límites y Continuidad",
+  "subtitulo": "Bolzano, Weierstrass, valor intermedio y límites notables",
+  "sigla": "A",
+  "cartas": [
+    {
+      "id": "continuidad",
+      "tipo": "definicion",
+      "titulo": "Continuidad en un punto",
+      "subtitulo": "Cuándo una función no pega saltos",
+      "etiquetas": ["continuidad", "límite"],
+      "frente": {
+        "hipotesis": ["f \\text{ definida en un entorno de } a"],
+        "tesis": "f \\text{ continua en } a \\iff \\lim_{x \\to a} f(x) = f(a)",
+        "nota": "Son tres condiciones: existe $f(a)$, existe el límite y ambos coinciden."
+      },
+      "dorso": {
+        "en_cristiano": "Una función es continua en $a$ si podés dibujarla pasando por ese punto **sin levantar el lápiz**: cerca de $a$ los valores de $f$ se pegan a $f(a)$.",
+        "requisitos": [
+          "$f(a)$ tiene que existir (el punto está en el dominio).",
+          "El límite $\\lim_{x\\to a} f(x)$ tiene que existir: los laterales coinciden.",
+          "Ese límite tiene que valer exactamente $f(a)$."
+        ],
+        "ejemplos": [
+          {
+            "enunciado": "¿Es continua $f(x)=\\dfrac{x^2-1}{x-1}$ en $x=1$?",
+            "pasos": [
+              "$f(1)$ no existe: el denominador se anula.",
+              "El límite sí existe: $\\lim_{x\\to1} \\frac{(x-1)(x+1)}{x-1} = 2$."
+            ],
+            "resultado": "No es continua: falla la primera condición (discontinuidad evitable)."
+          }
+        ],
+        "errores_comunes": [
+          "Verificar solo que el límite existe y olvidarse de comparar con $f(a)$.",
+          "En funciones partidas, no calcular los dos límites laterales."
+        ],
+        "relacionadas": ["bolzano", "valor-intermedio"]
+      }
+    },
+    {
+      "id": "bolzano",
+      "tipo": "teorema",
+      "titulo": "Teorema de Bolzano",
+      "subtitulo": "Existencia de raíces en funciones continuas",
+      "etiquetas": ["continuidad", "raíces", "ceros"],
+      "frente": {
+        "hipotesis": ["f \\in C[a,b]", "f(a)\\cdot f(b) < 0"],
+        "tesis": "\\exists\\, c \\in (a,b) : f(c) = 0",
+        "grafico": {
+          "x": [-0.6, 4.6],
+          "y": [-1.6, 1.6],
+          "elementos": [
+            { "tipo": "funcion", "expr": "1.2*sin(0.9*(x-2.2))", "dominio": [0.4, 4], "color": "cian" },
+            { "tipo": "punto", "x": 0.4, "y": -1.2, "color": "rosa", "etiqueta": "f(a)<0" },
+            { "tipo": "punto", "x": 4, "y": 1.2, "color": "rosa", "etiqueta": "f(b)>0" },
+            { "tipo": "punto", "x": 2.2, "y": 0, "hueco": true, "color": "claro", "etiqueta": "c" },
+            { "tipo": "recta_v", "x": 0.4, "etiqueta": "a" },
+            { "tipo": "recta_v", "x": 4, "etiqueta": "b" }
+          ]
+        }
+      },
+      "dorso": {
+        "en_cristiano": "Si una función continua empieza **abajo** del eje x y termina **arriba** (o al revés), en algún momento tiene que cruzarlo. No puede pasar de negativo a positivo sin tocar el cero.",
+        "requisitos": [
+          "Continuidad en todo el intervalo **cerrado** $[a,b]$, extremos incluidos.",
+          "Signos opuestos en los extremos: $f(a)\\,f(b)<0$."
+        ],
+        "cuando_usarlo": "Para demostrar que una ecuación $f(x)=0$ tiene solución en un intervalo, aunque no puedas despejarla. También es la base del método de bisección.",
+        "idea_demostracion": "Partí $[a,b]$ a la mitad y quedate con la mitad donde sigue habiendo cambio de signo. Repetí: los intervalos se achican y encierran un único punto $c$. Por continuidad, $f(c)$ no puede ser ni positivo ni negativo, así que $f(c)=0$.",
+        "ejemplos": [
+          {
+            "enunciado": "Probar que $x^3 + x - 1 = 0$ tiene una raíz en $(0,1)$.",
+            "pasos": [
+              "$f(x)=x^3+x-1$ es un polinomio, así que es continua en $[0,1]$.",
+              "$f(0) = -1 < 0$ y $f(1) = 1 > 0$.",
+              "Hay cambio de signo: se cumplen las hipótesis."
+            ],
+            "resultado": "Existe $c\\in(0,1)$ con $c^3+c-1=0$."
+          }
+        ],
+        "errores_comunes": [
+          "Aplicarlo a funciones con discontinuidades en el intervalo, como $1/x$ en $[-1,1]$.",
+          "Creer que garantiza **una sola** raíz: solo asegura al menos una.",
+          "Pensar que vale la recíproca: puede haber raíces sin cambio de signo."
+        ],
+        "relacionadas": ["valor-intermedio", "weierstrass", "continuidad"]
+      }
+    },
+    {
+      "id": "valor-intermedio",
+      "tipo": "teorema",
+      "titulo": "Teorema del Valor Intermedio",
+      "subtitulo": "Darboux: una continua no saltea valores",
+      "etiquetas": ["continuidad", "darboux"],
+      "frente": {
+        "hipotesis": ["f \\in C[a,b]", "k \\text{ entre } f(a) \\text{ y } f(b)"],
+        "tesis": "\\exists\\, c \\in [a,b] : f(c) = k",
+        "grafico": {
+          "x": [-0.5, 4.5],
+          "y": [-0.4, 4],
+          "elementos": [
+            { "tipo": "funcion", "expr": "0.5 + 0.18*x^2 + 0.35*sin(2x)", "dominio": [0.3, 4], "color": "cian" },
+            { "tipo": "recta_h", "y": 1.75, "color": "rosa", "etiqueta": "k" },
+            { "tipo": "punto", "x": 2.837, "y": 1.75, "hueco": true, "color": "rosa", "etiqueta": "c" }
+          ]
+        }
+      },
+      "dorso": {
+        "en_cristiano": "Si a las 8 tenías 10 °C y a las 14 tenías 25 °C, en algún momento hubo exactamente 18 °C. Una función continua pasa por **todos** los valores entre $f(a)$ y $f(b)$.",
+        "requisitos": ["Continuidad en $[a,b]$.", "$k$ comprendido entre $f(a)$ y $f(b)$."],
+        "idea_demostracion": "Aplicá Bolzano a $g(x) = f(x) - k$: tiene signos opuestos en los extremos.",
+        "ejemplos": [
+          {
+            "enunciado": "¿Existe $x\\in[0,\\pi/2]$ con $\\sin x = 0{,}3$?",
+            "pasos": ["$\\sin$ es continua.", "$\\sin 0 = 0$ y $\\sin(\\pi/2) = 1$.", "$0{,}3$ está entre $0$ y $1$."],
+            "resultado": "Sí, por el teorema del valor intermedio."
+          }
+        ],
+        "relacionadas": ["bolzano"]
+      }
+    },
+    {
+      "id": "weierstrass",
+      "tipo": "teorema",
+      "titulo": "Teorema de Weierstrass",
+      "subtitulo": "Máximo y mínimo absolutos en un compacto",
+      "etiquetas": ["extremos", "continuidad", "compacto"],
+      "frente": {
+        "hipotesis": ["f \\in C[a,b]"],
+        "tesis": "\\exists\\, x_m, x_M \\in [a,b] : f(x_m) \\le f(x) \\le f(x_M)\\ \\ \\forall x \\in [a,b]",
+        "grafico": {
+          "x": [-0.4, 5],
+          "y": [-0.6, 2.4],
+          "elementos": [
+            { "tipo": "funcion", "expr": "0.6 + 0.9*sin(1.3x) + 0.15x", "dominio": [0.3, 4.6] },
+            { "tipo": "punto", "x": 1.307, "y": 1.689, "color": "cian", "etiqueta": "máx" },
+            { "tipo": "punto", "x": 3.526, "y": 0.236, "color": "rosa", "etiqueta": "mín" }
+          ]
+        }
+      },
+      "dorso": {
+        "en_cristiano": "Una función continua en un intervalo **cerrado y acotado** siempre alcanza un valor más alto y uno más bajo. No se escapa al infinito ni se queda \"rozando\" un techo sin tocarlo.",
+        "requisitos": ["Intervalo cerrado y acotado $[a,b]$.", "Continuidad en todo el intervalo."],
+        "cuando_usarlo": "Antes de buscar extremos absolutos: te asegura que existen. Después los buscás entre los puntos críticos y los extremos $a$ y $b$.",
+        "ejemplos": [
+          {
+            "enunciado": "¿Tiene máximo $f(x)=1/x$ en $(0,1]$?",
+            "pasos": ["El intervalo no es cerrado.", "Cuando $x\\to 0^+$, $f(x)\\to+\\infty$."],
+            "resultado": "No: sin intervalo cerrado el teorema no aplica, y de hecho falla."
+          }
+        ],
+        "errores_comunes": ["Usarlo en intervalos abiertos o no acotados.", "Confundir extremo absoluto con extremo local."],
+        "relacionadas": ["bolzano", "fermat"]
+      }
+    },
+    {
+      "id": "limites-notables",
+      "tipo": "formula",
+      "titulo": "Límites notables",
+      "subtitulo": "Los que conviene saber de memoria",
+      "etiquetas": ["límite", "indeterminación"],
+      "frente": {
+        "variantes": [
+          { "nombre": "Seno", "latex": "\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1" },
+          { "nombre": "Número e", "latex": "\\lim_{x \\to \\infty} \\left(1 + \\frac{1}{x}\\right)^{x} = e" },
+          { "nombre": "Exponencial", "latex": "\\lim_{x \\to 0} \\frac{e^x - 1}{x} = 1" },
+          { "nombre": "Logaritmo", "latex": "\\lim_{x \\to 0} \\frac{\\ln(1+x)}{x} = 1" }
+        ]
+      },
+      "dorso": {
+        "en_cristiano": "Cerca de cero, $\\sin x$, $e^x-1$ y $\\ln(1+x)$ se comportan **igual que** $x$. Por eso al dividirlos por $x$ da 1.",
+        "cuando_usarlo": "Indeterminaciones $\\tfrac{0}{0}$ con trigonométricas, exponenciales o logaritmos, y $1^\\infty$ con el número $e$.",
+        "ejemplos": [
+          {
+            "enunciado": "Calcular $\\lim_{x\\to0} \\frac{\\sin(3x)}{x}$.",
+            "pasos": ["Multiplicá y dividí por 3: $3\\cdot\\frac{\\sin(3x)}{3x}$.", "Con $u=3x\\to0$, $\\frac{\\sin u}{u}\\to1$."],
+            "resultado": "$\\lim = 3$"
+          }
+        ],
+        "errores_comunes": ["Usar $\\frac{\\sin x}{x}\\to1$ cuando $x\\to\\infty$ (ahí tiende a 0)."],
+        "relacionadas": ["lhopital"]
+      }
+    }
+  ]
+}

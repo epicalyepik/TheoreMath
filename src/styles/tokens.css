@@ -1,0 +1,48 @@
+:root {
+  color-scheme: dark;
+
+  /* Tapete */
+  --fondo: #080d13;
+  --fondo-2: #0c131b;
+  --superficie: #111a24;
+  --superficie-2: #16212d;
+  --superficie-3: #1c2937;
+  --borde: rgba(150, 185, 215, 0.11);
+  --borde-fuerte: rgba(150, 185, 215, 0.2);
+
+  /* Texto */
+  --texto: #e7eef6;
+  --texto-2: #b1c0d0;
+  --tenue: #6f8399;
+  --tenue-2: #4a5a6c;
+
+  /* Acentos: cian eléctrico y rosa neón */
+  --cian: #5ce8ff;
+  --cian-2: #1fc6ee;
+  --cian-suave: rgba(92, 232, 255, 0.12);
+  --cian-brillo: rgba(92, 232, 255, 0.35);
+  --rosa: #ff5ca8;
+  --rosa-2: #f0388f;
+  --rosa-suave: rgba(255, 92, 168, 0.12);
+  --rosa-brillo: rgba(255, 92, 168, 0.35);
+  --error: #ff6b7d;
+
+  /* Cartas */
+  --carta-fondo: #0f1821;
+  --carta-borde: rgba(160, 200, 230, 0.16);
+  --carta-radio: 22px;
+  --filete: rgba(170, 215, 240, 0.22);
+
+  /* Tipografía */
+  --serif: 'Newsreader Variable', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --radio: 16px;
+  --radio-chico: 10px;
+  --sombra-carta: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 18px 40px -12px rgba(0, 0, 0, 0.75), 0 2px 6px rgba(0, 0, 0, 0.5);
+  --nav-alto: 64px;
+  --seguro-abajo: env(safe-area-inset-bottom, 0px);
+  --seguro-arriba: env(safe-area-inset-top, 0px);
+  --resorte: cubic-bezier(0.22, 1, 0.36, 1);
+}

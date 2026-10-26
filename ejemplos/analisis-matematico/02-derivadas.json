@@ -1,0 +1,220 @@
+{
+  "formato": "theoremath@1",
+  "id": "derivadas",
+  "titulo": "Derivadas y Extremos",
+  "subtitulo": "Rolle, Valor Medio, L'Hôpital y reglas de derivación",
+  "sigla": "B",
+  "cartas": [
+    {
+      "id": "derivada",
+      "tipo": "definicion",
+      "titulo": "Derivada",
+      "subtitulo": "Pendiente de la recta tangente",
+      "etiquetas": ["derivada", "tangente"],
+      "frente": {
+        "formula": "f'(a) = \\lim_{h \\to 0} \\frac{f(a+h) - f(a)}{h}",
+        "grafico": {
+          "x": [-0.5, 4.5],
+          "y": [-0.5, 4],
+          "elementos": [
+            { "tipo": "funcion", "expr": "0.25x^2 + 0.3", "dominio": [-0.5, 4.5] },
+            { "tipo": "funcion", "expr": "0.75*(x-1.5) + 0.8625", "color": "rosa", "discontinua": true, "etiqueta": "tangente" },
+            { "tipo": "punto", "x": 1.5, "y": 0.8625, "color": "rosa", "etiqueta": "a" },
+            { "tipo": "segmento", "desde": [1.5, 0.8625], "hasta": [3.4, 3.19], "color": "tenue" },
+            { "tipo": "punto", "x": 3.4, "y": 3.19, "hueco": true, "color": "tenue", "etiqueta": "a+h" }
+          ]
+        }
+      },
+      "dorso": {
+        "en_cristiano": "La derivada mide **qué tan rápido cambia** $f$ justo en $a$. Tomás la pendiente de la recta que une dos puntos de la curva y acercás uno al otro hasta que la secante se vuelve tangente.",
+        "requisitos": ["Que el límite exista y sea finito (los laterales coinciden)."],
+        "ejemplos": [
+          {
+            "enunciado": "Derivar $f(x)=x^2$ por definición.",
+            "pasos": ["$\\frac{(x+h)^2 - x^2}{h} = \\frac{2xh + h^2}{h} = 2x + h$", "Con $h\\to0$ queda $2x$."],
+            "resultado": "$f'(x) = 2x$"
+          }
+        ],
+        "errores_comunes": ["Creer que continua implica derivable: $|x|$ es continua en 0 pero no derivable."],
+        "relacionadas": ["tabla-derivadas", "valor-medio"]
+      }
+    },
+    {
+      "id": "tabla-derivadas",
+      "tipo": "formula",
+      "titulo": "Reglas de derivación",
+      "subtitulo": "Producto, cociente y cadena",
+      "etiquetas": ["derivada", "regla de la cadena"],
+      "frente": {
+        "variantes": [
+          { "nombre": "Producto", "latex": "(f g)' = f' g + f g'" },
+          { "nombre": "Cociente", "latex": "\\left(\\frac{f}{g}\\right)' = \\frac{f' g - f g'}{g^2}" },
+          { "nombre": "Cadena", "latex": "\\big(f(g(x))\\big)' = f'(g(x))\\, g'(x)" },
+          { "nombre": "Inversa", "latex": "(f^{-1})'(y) = \\frac{1}{f'(f^{-1}(y))}" }
+        ]
+      },
+      "dorso": {
+        "en_cristiano": "La cadena es la estrella: derivás **la de afuera** dejando quieta la de adentro, y multiplicás por **la derivada de la de adentro**.",
+        "ejemplos": [
+          {
+            "enunciado": "Derivar $h(x) = \\sin(x^2)$.",
+            "pasos": ["Afuera: $\\sin u$ → $\\cos u$. Adentro: $u=x^2$ → $2x$."],
+            "resultado": "$h'(x) = \\cos(x^2)\\cdot 2x$"
+          },
+          {
+            "enunciado": "Derivar $\\dfrac{x}{e^x}$.",
+            "pasos": ["$\\frac{1\\cdot e^x - x e^x}{(e^x)^2} = \\frac{e^x(1-x)}{e^{2x}}$"],
+            "resultado": "$\\dfrac{1-x}{e^x}$"
+          }
+        ],
+        "errores_comunes": ["Olvidarse de multiplicar por la derivada interna.", "En el cociente, invertir el orden de la resta del numerador."],
+        "relacionadas": ["derivada"]
+      }
+    },
+    {
+      "id": "fermat",
+      "tipo": "teorema",
+      "titulo": "Teorema de Fermat",
+      "subtitulo": "En un extremo local la tangente es horizontal",
+      "etiquetas": ["extremos", "puntos críticos"],
+      "frente": {
+        "hipotesis": ["f \\text{ tiene extremo local en } c \\in (a,b)", "f \\text{ derivable en } c"],
+        "tesis": "f'(c) = 0",
+        "grafico": {
+          "x": [-0.5, 4.5],
+          "y": [-0.5, 3],
+          "elementos": [
+            { "tipo": "funcion", "expr": "2.2 - 0.35*(x-2)^2", "dominio": [-0.3, 4.3] },
+            { "tipo": "segmento", "desde": [1, 2.2], "hasta": [3, 2.2], "color": "rosa" },
+            { "tipo": "punto", "x": 2, "y": 2.2, "color": "rosa", "etiqueta": "f'(c)=0" }
+          ]
+        }
+      },
+      "dorso": {
+        "en_cristiano": "En la cima de una montaña suave (o en el fondo de un valle) no estás ni subiendo ni bajando: la pendiente es cero.",
+        "requisitos": ["El extremo tiene que estar en el **interior** del intervalo, no en un borde.", "$f$ derivable en ese punto."],
+        "cuando_usarlo": "Para encontrar candidatos a extremos: resolvés $f'(x)=0$ y sumás los puntos donde $f'$ no existe y los bordes.",
+        "errores_comunes": [
+          "Usar la recíproca: $f'(c)=0$ no implica extremo ($x^3$ en $0$).",
+          "Olvidar los puntos donde no es derivable, como $|x|$ en $0$."
+        ],
+        "relacionadas": ["rolle", "weierstrass"]
+      }
+    },
+    {
+      "id": "rolle",
+      "tipo": "teorema",
+      "titulo": "Teorema de Rolle",
+      "subtitulo": "Si empieza y termina igual, en algún lado la pendiente es cero",
+      "etiquetas": ["derivada", "valor medio"],
+      "frente": {
+        "hipotesis": ["f \\in C[a,b]", "f \\text{ derivable en } (a,b)", "f(a) = f(b)"],
+        "tesis": "\\exists\\, c \\in (a,b) : f'(c) = 0",
+        "grafico": {
+          "x": [-0.3, 4.6],
+          "y": [-0.4, 2.6],
+          "elementos": [
+            { "tipo": "funcion", "expr": "0.6 + 1.4*sin(pi*(x-0.5)/3.5)", "dominio": [0.5, 4] },
+            { "tipo": "segmento", "desde": [0.5, 0.6], "hasta": [4, 0.6], "color": "tenue", "discontinua": true },
+            { "tipo": "punto", "x": 0.5, "y": 0.6, "color": "rosa", "etiqueta": "a" },
+            { "tipo": "punto", "x": 4, "y": 0.6, "color": "rosa", "etiqueta": "b" },
+            { "tipo": "segmento", "desde": [1.5, 2], "hasta": [3, 2], "color": "rosa" },
+            { "tipo": "punto", "x": 2.25, "y": 2, "hueco": true, "color": "claro", "etiqueta": "c" }
+          ]
+        }
+      },
+      "dorso": {
+        "en_cristiano": "Si salís de tu casa y volvés a tu casa, en algún momento estuviste quieto o pegaste la vuelta: hubo un instante con velocidad cero.",
+        "requisitos": ["Continua en el cerrado $[a,b]$.", "Derivable en el abierto $(a,b)$.", "Mismo valor en los extremos."],
+        "idea_demostracion": "Por Weierstrass $f$ alcanza máximo y mínimo. Si los dos están en los bordes, $f$ es constante y $f'\\equiv0$. Si no, alguno está adentro y Fermat da $f'(c)=0$.",
+        "ejemplos": [
+          {
+            "enunciado": "Verificar Rolle para $f(x) = x^2 - 4x$ en $[0,4]$.",
+            "pasos": ["Polinomio: continua y derivable.", "$f(0)=0=f(4)$.", "$f'(x) = 2x - 4 = 0 \\Rightarrow x = 2$."],
+            "resultado": "$c = 2 \\in (0,4)$"
+          }
+        ],
+        "errores_comunes": ["Aplicarlo a $|x|$ en $[-1,1]$: no es derivable en $0$ y no hay $c$."],
+        "relacionadas": ["valor-medio", "fermat", "weierstrass"]
+      }
+    },
+    {
+      "id": "valor-medio",
+      "tipo": "teorema",
+      "titulo": "Teorema del Valor Medio",
+      "subtitulo": "Lagrange: la tangente copia a la secante",
+      "etiquetas": ["derivada", "lagrange", "valor medio"],
+      "frente": {
+        "hipotesis": ["f \\in C[a,b]", "f \\text{ derivable en } (a,b)"],
+        "tesis": "\\exists\\, c \\in (a,b) : f'(c) = \\frac{f(b) - f(a)}{b - a}",
+        "grafico": {
+          "x": [-0.3, 4.6],
+          "y": [-0.3, 3.2],
+          "elementos": [
+            { "tipo": "funcion", "expr": "0.3 + 0.12*x^2 + 0.45*sin(1.6x)", "dominio": [0.3, 4.2] },
+            { "tipo": "segmento", "desde": [0.3, 0.5186], "hasta": [4.2, 2.6072], "color": "tenue", "discontinua": true, "etiqueta": "secante" },
+            { "tipo": "punto", "x": 0.3, "y": 0.5186, "color": "rosa", "etiqueta": "a" },
+            { "tipo": "punto", "x": 4.2, "y": 2.6072, "color": "rosa", "etiqueta": "b" },
+            { "tipo": "funcion", "expr": "0.5355*(x-2.821) + 0.8138", "dominio": [2, 3.7], "color": "rosa" },
+            { "tipo": "punto", "x": 2.821, "y": 0.8138, "hueco": true, "color": "claro", "etiqueta": "c" }
+          ]
+        }
+      },
+      "dorso": {
+        "en_cristiano": "Si en un viaje promediaste 80 km/h, en algún instante el velocímetro marcó **exactamente** 80. La velocidad promedio se alcanza como velocidad instantánea.",
+        "requisitos": ["Continua en $[a,b]$.", "Derivable en $(a,b)$."],
+        "idea_demostracion": "Restale a $f$ la recta secante: $g(x) = f(x) - \\left[f(a) + \\frac{f(b)-f(a)}{b-a}(x-a)\\right]$. Cumple $g(a)=g(b)=0$; aplicá Rolle a $g$.",
+        "cuando_usarlo": "Acotar diferencias $|f(b)-f(a)|$, probar desigualdades y demostrar que $f'=0$ implica $f$ constante.",
+        "ejemplos": [
+          {
+            "enunciado": "Probar que $|\\sin b - \\sin a| \\le |b - a|$.",
+            "pasos": ["Por TVM: $\\sin b - \\sin a = \\cos(c)\\,(b-a)$.", "$|\\cos c| \\le 1$."],
+            "resultado": "$|\\sin b - \\sin a| \\le |b-a|$"
+          }
+        ],
+        "relacionadas": ["rolle", "lhopital"]
+      }
+    },
+    {
+      "id": "lhopital",
+      "tipo": "teorema",
+      "titulo": "Regla de L'Hôpital",
+      "subtitulo": "Indeterminaciones 0/0 e ∞/∞",
+      "etiquetas": ["límite", "indeterminación", "derivada"],
+      "frente": {
+        "hipotesis": [
+          "\\lim_{x\\to a} f = \\lim_{x\\to a} g = 0 \\ \\text{ó}\\ \\pm\\infty",
+          "g'(x) \\neq 0 \\text{ cerca de } a",
+          "\\exists \\lim_{x\\to a} \\frac{f'(x)}{g'(x)}"
+        ],
+        "tesis": "\\lim_{x \\to a} \\frac{f(x)}{g(x)} = \\lim_{x \\to a} \\frac{f'(x)}{g'(x)}"
+      },
+      "dorso": {
+        "en_cristiano": "Cuando numerador y denominador se van los dos a 0 (o los dos a infinito), lo que importa es **quién lo hace más rápido**. Las derivadas miden esa velocidad.",
+        "requisitos": [
+          "Tiene que ser una indeterminación $\\frac{0}{0}$ o $\\frac{\\infty}{\\infty}$.",
+          "Se derivan numerador y denominador **por separado** (no es la regla del cociente).",
+          "El límite de las derivadas tiene que existir."
+        ],
+        "ejemplos": [
+          {
+            "enunciado": "$\\lim_{x\\to0} \\frac{1-\\cos x}{x^2}$",
+            "pasos": ["$\\frac00$ → derivo: $\\frac{\\sin x}{2x}$.", "Sigue $\\frac00$ → derivo de nuevo: $\\frac{\\cos x}{2}$."],
+            "resultado": "$\\lim = \\tfrac12$"
+          },
+          {
+            "enunciado": "$\\lim_{x\\to\\infty} \\frac{\\ln x}{x}$",
+            "pasos": ["$\\frac{\\infty}{\\infty}$ → $\\frac{1/x}{1}$."],
+            "resultado": "$\\lim = 0$: $x$ crece más rápido que $\\ln x$."
+          }
+        ],
+        "errores_comunes": [
+          "Aplicarlo sin verificar que hay indeterminación.",
+          "Derivar el cociente completo con la regla del cociente.",
+          "Para $0\\cdot\\infty$ o $1^\\infty$, primero hay que reescribir como cociente."
+        ],
+        "relacionadas": ["limites-notables", "valor-medio"]
+      }
+    }
+  ]
+}

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { IconoArchivo, IconoBorrar, IconoCarpeta, IconoCopiar, IconoEnlace, IconoRefrescar } from '../components/Iconos';
+import { IconoArchivo, IconoCarpeta, IconoCopiar, IconoEnlace } from '../components/Iconos';
 import { Sheet } from '../components/Sheet';
-import { avisar } from '../components/Toast';
 import { entradasDesdeFiles, importarEntradas } from '../import/files';
 import { insertar } from '../import/merge';
 import { importarDesdeUrl } from '../import/url';
-import { bibliotecaVacia, type Fuente, type ResultadoImport } from '../model/types';
-import { actualizar, bibliotecaDeEjemplo, guardar } from '../store/library';
+import { copiarGuia } from '../import/guia';
+import type { Fuente, ResultadoImport } from '../model/types';
+import { navegar } from '../router';
+import { actualizar } from '../store/library';
 
 interface Props {
   abierta: boolean;
@@ -16,25 +17,11 @@ interface Props {
 
 const soportaCarpetas = typeof document !== 'undefined' && 'webkitdirectory' in document.createElement('input');
 
-async function copiarGuia() {
-  try {
-    const [prompt, guia] = await Promise.all([
-      import('../../docs/PROMPT_IA.md?raw').then((m) => m.default),
-      import('../../docs/GUIA_FORMATO.md?raw').then((m) => m.default),
-    ]);
-    await navigator.clipboard.writeText(`${prompt}\n\n---\n\n${guia}`);
-    avisar('Guía copiada: pegala en el chat de la IA junto con tu tema');
-  } catch {
-    avisar('No se pudo copiar la guía');
-  }
-}
-
 export function ImportSheet({ abierta, onCerrar, urlInicial }: Props) {
   const [url, setUrl] = useState('');
   const [cargando, setCargando] = useState(false);
   const [resultado, setResultado] = useState<ResultadoImport | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [borrar, setBorrar] = useState(false);
   const archivos = useRef<HTMLInputElement>(null);
   const carpeta = useRef<HTMLInputElement>(null);
 
@@ -43,7 +30,6 @@ export function ImportSheet({ abierta, onCerrar, urlInicial }: Props) {
     if (!abierta) {
       setResultado(null);
       setError(null);
-      setBorrar(false);
     }
   }, [abierta, urlInicial]);
 
@@ -192,40 +178,12 @@ export function ImportSheet({ abierta, onCerrar, urlInicial }: Props) {
             </button>
           </div>
 
-          <h3 className="kicker separador">Biblioteca</h3>
-          <div className="menu-opciones">
-            <button
-              type="button"
-              className="opcion"
-              onClick={async () => {
-                const ej = await bibliotecaDeEjemplo();
-                await actualizar((b) => insertar(b, ej.raices.map((nodo) => ({ ruta: [], nodo })), { tipo: 'ejemplo' }));
-                avisar('Ejemplos restaurados');
-              }}
-            >
-              <IconoRefrescar />
-              <span>
-                <b>Restaurar ejemplos</b>
-                <small>Vuelve a cargar los cuadernos de muestra</small>
-              </span>
-            </button>
-            <button
-              type="button"
-              className={`opcion peligro ${borrar ? 'confirmar' : ''}`}
-              onClick={async () => {
-                if (!borrar) return setBorrar(true);
-                await guardar(bibliotecaVacia());
-                setBorrar(false);
-                avisar('Biblioteca vacía');
-              }}
-            >
-              <IconoBorrar />
-              <span>
-                <b>{borrar ? 'Tocá de nuevo para borrar todo' : 'Borrar todo'}</b>
-                <small>Elimina todos los cuadernos de este dispositivo</small>
-              </span>
-            </button>
-          </div>
+          <button type="button" className="enlace" onClick={() => {
+            onCerrar();
+            navegar('ayuda', ['ia']);
+          }}>
+            ¿Cómo armo los archivos?
+          </button>
         </>
       )}
     </Sheet>

@@ -4,6 +4,7 @@ import { BottomNav } from './components/BottomNav';
 import { Toast } from './components/Toast';
 import { navegar, useRuta } from './router';
 import { Cuadernos } from './screens/Cuadernos';
+import { Ayuda } from './screens/Ayuda';
 import { ImportSheet } from './screens/ImportSheet';
 import { Mazo } from './screens/Mazo';
 import { cargarBiblioteca } from './store/library';
@@ -33,7 +34,15 @@ export function App() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="app">
-        {listo ? activa === 'mazo' ? <Mazo /> : <Cuadernos onImportar={() => setImportar(true)} /> : <div className="pantalla cargando" aria-busy="true" />}
+        {!listo ? (
+          <div className="pantalla cargando" aria-busy="true" />
+        ) : pantalla === 'mazo' ? (
+          <Mazo />
+        ) : pantalla === 'ayuda' ? (
+          <Ayuda onImportar={() => setImportar(true)} />
+        ) : (
+          <Cuadernos onImportar={() => setImportar(true)} />
+        )}
         <BottomNav activa={activa} />
         <ImportSheet abierta={importar} onCerrar={cerrarImportar} urlInicial={urlCompartida} />
         <Toast />

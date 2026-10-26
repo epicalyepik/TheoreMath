@@ -1,11 +1,12 @@
 import { useSyncExternalStore } from 'react';
 
-// Rutas por hash (funcionan en GitHub Pages sin configurar el servidor):
+// Rutas por hash (funcionan en cualquier hosting estático sin configurar el servidor):
 //   #/cuadernos/<id>/<id>…        carpeta abierta en el explorador
 //   #/mazo/<id>/<id>…?carta=<id>  mazo abierto (opcionalmente en una carta)
 //   #/importar?url=<link>         abre la importación con un link precargado
+//   #/ayuda/<seccion>             ayuda, opcionalmente en una sección
 
-export type Pantalla = 'cuadernos' | 'mazo' | 'importar';
+export type Pantalla = 'cuadernos' | 'mazo' | 'importar' | 'ayuda';
 
 export interface Ruta {
   pantalla: Pantalla;
@@ -18,7 +19,7 @@ function leer(): Ruta {
   const [camino, query = ''] = hash.split('?');
   const partes = camino.split('/').filter(Boolean).map(decodeURIComponent);
   const p = partes[0];
-  const pantalla: Pantalla = p === 'mazo' || p === 'importar' ? p : 'cuadernos';
+  const pantalla: Pantalla = p === 'mazo' || p === 'importar' || p === 'ayuda' ? p : 'cuadernos';
   return { pantalla, ruta: partes.slice(1), params: new URLSearchParams(query) };
 }
 

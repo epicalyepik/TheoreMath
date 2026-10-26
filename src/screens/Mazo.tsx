@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DeckStack, type DeckHandle } from '../cards/DeckStack';
 import type { Relacionada } from '../cards/CardBack';
-import { Glifo, TIPOS, dosDigitos } from '../cards/tipos';
-import { IconoCuadernos, IconoMezclar, IconoOjo } from '../components/Iconos';
-import { Sheet } from '../components/Sheet';
+import { dosDigitos } from '../cards/tipos';
+import { IconoAbanico, IconoCuadernos, IconoMezclar, IconoOjo } from '../components/Iconos';
 import { avisar } from '../components/Toast';
 import { buscarCartaGlobal, ubicarMazo } from '../model/consultas';
 import type { CartaT } from '../model/schema';
 import { navegar, useRuta } from '../router';
 import { useBiblioteca } from '../store/library';
 import { setPrefs, usePrefs } from '../store/prefs';
+import { VistaGeneral } from './VistaGeneral';
 
 function mezclar(n: number): number[] {
   const a = Array.from({ length: n }, (_, i) => i);
@@ -97,6 +97,7 @@ export function Mazo() {
   );
 
   const onVolteo = useCallback(() => setPrefs((p) => (p.pistaVista >= 3 ? p : { ...p, pistaVista: p.pistaVista + 1 })), []);
+  const cerrarVista = useCallback(() => setAbanico(false), []);
   const manejar = useCallback((h: DeckHandle) => (deck.current = h), []);
 
   if (!info) {
@@ -155,6 +156,9 @@ export function Mazo() {
           >
             <IconoMezclar />
           </button>
+          <button type="button" className="boton-icono" onClick={() => setAbanico(true)} aria-label="Vista general" title="Vista general">
+            <IconoAbanico />
+          </button>
           <button type="button" className="contador" onClick={() => setAbanico(true)} aria-label={`Carta ${indice + 1} de ${total}. Ver todas`}>
             <b>{dosDigitos(indice + 1)}</b>
             <span>/{dosDigitos(total)}</span>
@@ -181,29 +185,19 @@ export function Mazo() {
         <div className="riel-marca" style={{ left: `${total > 1 ? (indice / (total - 1)) * 100 : 50}%` }} />
       </div>
 
-      <Sheet abierta={abanico} onCerrar={() => setAbanico(false)} titulo={info.mazo.titulo} className="abanico">
-        <ol className="abanico-grilla">
-          {cartas.map((c, i) => (
-            <li key={`${i}-${c.id}`}>
-              <button
-                type="button"
-                className={`mini-carta ${i === indice ? 'actual' : ''}`}
-                onClick={() => {
-                  setIndice(i);
-                  setAbanico(false);
-                }}
-              >
-                <span className="mini-num">{dosDigitos(numeros[i])}</span>
-                <span className="mini-glifo">
-                  <Glifo tipo={c.tipo} />
-                </span>
-                <span className="mini-titulo">{c.titulo}</span>
-                <span className="mini-tipo">{TIPOS[c.tipo].nombre}</span>
-              </button>
-            </li>
-          ))}
-        </ol>
-      </Sheet>
+      <VistaGeneral
+        abierta={abanico}
+        onCerrar={cerrarVista}
+        titulo={info.mazo.titulo}
+        acento={info.acento}
+        cartas={cartas}
+        numeros={numeros}
+        indice={indice}
+        onElegir={(i) => {
+          setIndice(i);
+          setAbanico(false);
+        }}
+      />
     </main>
   );
 }

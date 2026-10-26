@@ -159,3 +159,28 @@ describe('links', () => {
     expect(urlCruda(new URL('https://www.dropbox.com/s/abc/u1.json?dl=0')).href).toBe('https://dl.dropboxusercontent.com/s/abc/u1.json?dl=1');
   });
 });
+
+describe('copia de la biblioteca', () => {
+  it('exportar y volver a importar da la misma biblioteca', async () => {
+    const { exportarBiblioteca } = await import('../src/import/exportar');
+    const r = importarEntradas(leerCarpeta(join(__dirname, '../ejemplos')));
+    const original = insertar(bibliotecaVacia(), r.nodos);
+    const copia = importarEntradas([json('theoremath-copia.json', exportarBiblioteca(original))]);
+    expect(copia.problemas).toEqual([]);
+    expect(insertar(bibliotecaVacia(), copia.nodos)).toEqual(original);
+  });
+
+  it('una copia con varios nodos raíz los importa a todos, en orden', () => {
+    const r = importarEntradas([
+      json('copia.json', {
+        formato: 'theoremath@1',
+        biblioteca: [
+          { id: 'b', titulo: 'B', cartas: [carta('x')] },
+          { id: 'a', titulo: 'A', hijos: [{ id: 'u', titulo: 'U', cartas: [carta('y')] }] },
+        ],
+      }),
+    ]);
+    expect(r.problemas).toEqual([]);
+    expect(r.nodos.map((n) => n.nodo.id)).toEqual(['b', 'a']);
+  });
+});

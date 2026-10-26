@@ -83,10 +83,15 @@ function nodosDe(d: Dir, problemas: ProblemaImport[], rutaDir: string): Ubicado[
   for (const a of d.archivos) {
     const raw = parsear(a, problemas);
     if (raw === undefined) continue;
-    const r = normalizarNodo(raw, { archivo: a.ruta, problemas }, idDesdeNombre(nombreDe(a.ruta)));
-    if (!r) continue;
-    const ruta = r.dentroDe ? r.dentroDe.split('/').map((s) => s.trim()).filter(Boolean) : [];
-    items.push({ orden: nombreDe(a.ruta), u: { ruta, nodo: r.nodo } });
+    // Una copia exportada trae varios nodos raíz en "biblioteca".
+    const copia = typeof raw === 'object' && raw !== null && Array.isArray((raw as { biblioteca?: unknown }).biblioteca);
+    const crudos = copia ? ((raw as { biblioteca: unknown[] }).biblioteca) : [raw];
+    crudos.forEach((c, i) => {
+      const r = normalizarNodo(c, { archivo: a.ruta, problemas }, idDesdeNombre(nombreDe(a.ruta)) + (copia ? `-${i + 1}` : ''));
+      if (!r) return;
+      const ruta = r.dentroDe ? r.dentroDe.split('/').map((s) => s.trim()).filter(Boolean) : [];
+      items.push({ orden: `${nombreDe(a.ruta)}\u0000${String(i).padStart(4, '0')}`, u: { ruta, nodo: r.nodo } });
+    });
   }
   items.sort((a, b) => comparar(a.orden, b.orden));
   return items.map((i) => i.u);

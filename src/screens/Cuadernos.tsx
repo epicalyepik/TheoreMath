@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Glifo, TIPOS } from '../cards/tipos';
-import { IconoBorrar, IconoBuscar, IconoCerrar, IconoMas, IconoPuntos, IconoRefrescar, IconoVolver } from '../components/Iconos';
+import { IconoAyuda, IconoBorrar, IconoBuscar, IconoCerrar, IconoMas, IconoPuntos, IconoRefrescar, IconoVolver } from '../components/Iconos';
 import { Sheet } from '../components/Sheet';
 import { avisar } from '../components/Toast';
 import { contarCartas, eliminar, insertar, ordenados } from '../import/merge';
@@ -218,6 +218,9 @@ export function Cuadernos({ onImportar }: { onImportar: () => void }) {
           )}
           <h1>{ruta.length ? (actual?.titulo ?? 'Cuadernos') : 'Cuadernos'}</h1>
         </div>
+        <button type="button" className="boton-icono" onClick={() => navegar('ayuda')} aria-label="Ayuda" title="Ayuda">
+          <IconoAyuda />
+        </button>
         <button type="button" className="boton-icono acento" onClick={onImportar} aria-label="Agregar contenido">
           <IconoMas />
         </button>
@@ -260,6 +263,9 @@ export function Cuadernos({ onImportar }: { onImportar: () => void }) {
           <p>Subí archivos .json o .zip generados con la guía para IA, o pegá un link.</p>
           <button type="button" className="boton" onClick={onImportar}>
             <IconoMas /> Agregar contenido
+          </button>
+          <button type="button" className="enlace" onClick={() => navegar('ayuda')}>
+            ¿Cómo empiezo?
           </button>
         </div>
       ) : (

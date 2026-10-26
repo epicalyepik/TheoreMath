@@ -1,0 +1,147 @@
+{
+  "formato": "theoremath@1",
+  "id": "calculo-integral",
+  "titulo": "Cálculo Integral",
+  "subtitulo": "Riemann, Teorema Fundamental, Barrow y métodos de integración",
+  "sigla": "C",
+  "cartas": [
+    {
+      "id": "integral-definida",
+      "tipo": "definicion",
+      "titulo": "Integral definida",
+      "subtitulo": "Área con signo bajo la curva",
+      "etiquetas": ["riemann", "área"],
+      "frente": {
+        "formula": "\\int_a^b f(x)\\,dx = \\lim_{n\\to\\infty} \\sum_{i=1}^{n} f(x_i^*)\\,\\Delta x",
+        "grafico": {
+          "x": [-0.4, 4.6],
+          "y": [-0.4, 3],
+          "elementos": [
+            { "tipo": "region", "superior": "0.8 + 0.5*sin(1.2x) + 0.15x^2", "dominio": [0.5, 4], "color": "cian" },
+            { "tipo": "funcion", "expr": "0.8 + 0.5*sin(1.2x) + 0.15x^2", "dominio": [0, 4.4] },
+            { "tipo": "recta_v", "x": 0.5, "etiqueta": "a" },
+            { "tipo": "recta_v", "x": 4, "etiqueta": "b" }
+          ]
+        }
+      },
+      "dorso": {
+        "en_cristiano": "Cortás el área en rectángulos finitos, sumás sus áreas y hacés los rectángulos cada vez más finos. Lo que queda en el límite es la integral. El área **debajo** del eje cuenta negativa.",
+        "requisitos": ["Si $f$ es continua en $[a,b]$, la integral existe (es integrable Riemann)."],
+        "ejemplos": [
+          {
+            "enunciado": "$\\int_{-1}^{1} x\\,dx$",
+            "pasos": ["El área de $[0,1]$ es $\\tfrac12$ y la de $[-1,0]$ es $-\\tfrac12$."],
+            "resultado": "$0$: las áreas con signo se cancelan."
+          }
+        ],
+        "errores_comunes": ["Usar la integral para calcular un área geométrica cuando $f$ cambia de signo: ahí hay que integrar $|f|$."],
+        "relacionadas": ["tfc", "barrow"]
+      }
+    },
+    {
+      "id": "tfc",
+      "tipo": "teorema",
+      "titulo": "Teorema Fundamental del Cálculo",
+      "subtitulo": "Derivar e integrar son operaciones inversas",
+      "etiquetas": ["tfc", "integral", "derivada"],
+      "frente": {
+        "hipotesis": ["f \\in C[a,b]", "F(x) = \\int_a^x f(t)\\,dt"],
+        "tesis": "F'(x) = f(x) \\quad \\forall x \\in (a,b)"
+      },
+      "dorso": {
+        "en_cristiano": "Si $F(x)$ es \"el área acumulada hasta $x$\", lo rápido que crece esa área es justo la altura de la curva en $x$.",
+        "requisitos": ["$f$ continua (si no, $F$ puede no ser derivable en los saltos)."],
+        "cuando_usarlo": "Para derivar funciones definidas por integrales. Con límites variables usás además la regla de la cadena.",
+        "ejemplos": [
+          {
+            "enunciado": "Derivar $G(x) = \\int_0^{x^2} e^{-t^2}\\,dt$.",
+            "pasos": ["TFC + cadena: $G'(x) = e^{-(x^2)^2}\\cdot (x^2)'$."],
+            "resultado": "$G'(x) = 2x\\,e^{-x^4}$"
+          }
+        ],
+        "errores_comunes": ["Olvidarse de multiplicar por la derivada del límite superior."],
+        "relacionadas": ["barrow", "integral-definida"]
+      }
+    },
+    {
+      "id": "barrow",
+      "tipo": "teorema",
+      "titulo": "Regla de Barrow",
+      "subtitulo": "Calcular integrales con una primitiva",
+      "etiquetas": ["barrow", "primitiva", "integral"],
+      "frente": {
+        "hipotesis": ["f \\in C[a,b]", "F' = f \\text{ en } [a,b]"],
+        "tesis": "\\int_a^b f(x)\\,dx = F(b) - F(a)"
+      },
+      "dorso": {
+        "en_cristiano": "Para calcular el área no hace falta sumar rectángulos: buscás una función cuya derivada sea $f$, la evaluás en los extremos y restás.",
+        "ejemplos": [
+          {
+            "enunciado": "$\\int_0^{\\pi} \\sin x\\,dx$",
+            "pasos": ["Primitiva: $F(x) = -\\cos x$.", "$F(\\pi) - F(0) = 1 - (-1)$."],
+            "resultado": "$2$"
+          }
+        ],
+        "errores_comunes": ["Restar al revés: es $F(b) - F(a)$, el de arriba menos el de abajo.", "Usar una primitiva que no es continua en todo $[a,b]$, como $\\ln|x|$ cruzando el 0."],
+        "relacionadas": ["tfc", "partes", "sustitucion"]
+      }
+    },
+    {
+      "id": "partes",
+      "tipo": "formula",
+      "titulo": "Integración por partes",
+      "subtitulo": "Producto de funciones",
+      "etiquetas": ["integración", "partes", "ilate"],
+      "frente": {
+        "formula": "\\int u\\,dv = u\\,v - \\int v\\,du",
+        "variantes": [{ "nombre": "Definida", "latex": "\\int_a^b u\\,dv = \\big[u\\,v\\big]_a^b - \\int_a^b v\\,du" }]
+      },
+      "dorso": {
+        "en_cristiano": "Es la regla del producto dada vuelta. Elegís una parte para **derivar** ($u$) que se simplifique, y otra para **integrar** ($dv$) que sepas integrar.",
+        "cuando_usarlo": "Productos del tipo polinomio·exponencial, polinomio·trigonométrica, logaritmos solos ($\\int \\ln x\\,dx$) o arcotangentes.",
+        "ejemplos": [
+          {
+            "enunciado": "$\\int x\\,e^x\\,dx$",
+            "pasos": ["$u = x \\Rightarrow du = dx$; $\\ dv = e^x dx \\Rightarrow v = e^x$.", "$x e^x - \\int e^x\\,dx$."],
+            "resultado": "$x e^x - e^x + C$"
+          }
+        ],
+        "errores_comunes": ["Elegir $u$ al revés y terminar con una integral más difícil.", "Olvidar la constante $C$ en indefinidas."],
+        "extra": [
+          {
+            "titulo": "Truco para elegir u",
+            "texto": "Orden **ILATE**: Inversas trig., Logaritmos, Algebraicas, Trigonométricas, Exponenciales. La que aparece primero suele ser $u$."
+          }
+        ],
+        "relacionadas": ["sustitucion", "barrow"]
+      }
+    },
+    {
+      "id": "sustitucion",
+      "tipo": "metodo",
+      "titulo": "Sustitución",
+      "subtitulo": "Cambio de variable",
+      "etiquetas": ["integración", "cambio de variable"],
+      "frente": {
+        "formula": "\\int f(g(x))\\,g'(x)\\,dx = \\int f(u)\\,du \\Big|_{u = g(x)}",
+        "pasos": [
+          "Detectá una función interna $g(x)$ cuya derivada también aparezca.",
+          "Llamala $u$ y calculá $du = g'(x)\\,dx$.",
+          "Reescribí todo en $u$, integrá y volvé a $x$."
+        ]
+      },
+      "dorso": {
+        "en_cristiano": "Es la regla de la cadena al revés: si ves \"una función y su derivada\" multiplicándose, renombrás la función y la integral se vuelve simple.",
+        "ejemplos": [
+          {
+            "enunciado": "$\\int 2x\\cos(x^2)\\,dx$",
+            "pasos": ["$u = x^2$, $du = 2x\\,dx$.", "$\\int \\cos u\\,du = \\sin u$."],
+            "resultado": "$\\sin(x^2) + C$"
+          }
+        ],
+        "errores_comunes": ["En integrales definidas, no cambiar los límites de integración (o no volver a $x$)."],
+        "relacionadas": ["partes", "tabla-derivadas"]
+      }
+    }
+  ]
+}

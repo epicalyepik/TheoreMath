@@ -1,0 +1,135 @@
+{
+  "formato": "theoremath@1",
+  "id": "espacios-vectoriales",
+  "titulo": "Espacios Vectoriales",
+  "subtitulo": "Subespacios, bases y dimensión",
+  "sigla": "A",
+  "cartas": [
+    {
+      "id": "espacio-vectorial",
+      "tipo": "estructura",
+      "titulo": "Espacio vectorial",
+      "subtitulo": "Conjunto donde se puede sumar y escalar",
+      "etiquetas": ["axiomas", "estructura"],
+      "frente": {
+        "definicion": "$(V, +, \\cdot)$ sobre un cuerpo $\\mathbb{K}$ con, para todo $u, v, w \\in V$ y $\\alpha, \\beta \\in \\mathbb{K}$:",
+        "axiomas": [
+          "u + v = v + u",
+          "(u + v) + w = u + (v + w)",
+          "\\exists\\, 0 \\in V : v + 0 = v",
+          "\\exists\\, {-v} : v + (-v) = 0",
+          "\\alpha(\\beta v) = (\\alpha\\beta) v",
+          "1 \\cdot v = v",
+          "\\alpha(u + v) = \\alpha u + \\alpha v",
+          "(\\alpha + \\beta) v = \\alpha v + \\beta v"
+        ]
+      },
+      "dorso": {
+        "en_cristiano": "Un espacio vectorial es cualquier conjunto donde sumar elementos y multiplicarlos por números **funciona como con flechas en el plano**. Pueden ser vectores, polinomios, matrices o funciones.",
+        "ejemplos": [
+          {
+            "enunciado": "¿Son espacios vectoriales sobre $\\mathbb{R}$?",
+            "pasos": [
+              "$\\mathbb{R}^n$, $\\mathbb{R}^{m\\times n}$, $P_n$ (polinomios de grado $\\le n$): **sí**.",
+              "Polinomios de grado **exactamente** 2: **no**, $x^2 + (-x^2) = 0$ no tiene grado 2."
+            ]
+          }
+        ],
+        "errores_comunes": ["Olvidar verificar que el neutro está en el conjunto."],
+        "relacionadas": ["subespacio", "base-dimension"]
+      }
+    },
+    {
+      "id": "subespacio",
+      "tipo": "teorema",
+      "titulo": "Criterio de subespacio",
+      "subtitulo": "Alcanza con tres condiciones",
+      "etiquetas": ["subespacio"],
+      "frente": {
+        "hipotesis": ["S \\subseteq V"],
+        "tesis": "S \\le V \\iff \\begin{cases} 0 \\in S \\\\ u, v \\in S \\Rightarrow u + v \\in S \\\\ \\alpha \\in \\mathbb{K},\\ v \\in S \\Rightarrow \\alpha v \\in S \\end{cases}"
+      },
+      "dorso": {
+        "en_cristiano": "No hace falta revisar los ocho axiomas: si el subconjunto contiene al cero y **no te podés escapar** de él sumando o escalando, ya es un subespacio.",
+        "ejemplos": [
+          {
+            "enunciado": "¿Es $S = \\{(x,y)\\in\\mathbb{R}^2 : y = 2x\\}$ un subespacio?",
+            "pasos": ["$(0,0)$: $0 = 2\\cdot0$ ✓.", "$(x_1,2x_1)+(x_2,2x_2) = (x_1+x_2,\\,2(x_1+x_2))$ ✓.", "$\\alpha(x,2x) = (\\alpha x, 2\\alpha x)$ ✓."],
+            "resultado": "Sí: es una recta por el origen."
+          },
+          {
+            "enunciado": "¿Y la recta $y = 2x + 1$?",
+            "resultado": "No: no contiene al $(0,0)$."
+          }
+        ],
+        "errores_comunes": ["Probar con un ejemplo numérico en lugar de con elementos genéricos."],
+        "relacionadas": ["espacio-vectorial", "base-dimension"]
+      }
+    },
+    {
+      "id": "combinacion-lineal",
+      "tipo": "definicion",
+      "titulo": "Combinación lineal",
+      "subtitulo": "Generar vectores a partir de otros",
+      "etiquetas": ["generadores", "span"],
+      "frente": {
+        "formula": "w = \\alpha_1 v_1 + \\alpha_2 v_2 + \\cdots + \\alpha_k v_k",
+        "grafico": {
+          "x": [-0.6, 4.4],
+          "y": [-0.5, 3.7],
+          "etiquetas_ejes": ["", ""],
+          "elementos": [
+            { "tipo": "vector", "hasta": [2, 0.5], "color": "cian", "etiqueta": "$v_1$" },
+            { "tipo": "vector", "hasta": [0.6, 1.4], "color": "rosa", "etiqueta": "$v_2$" },
+            { "tipo": "segmento", "desde": [2, 0.5], "hasta": [3.2, 3.3], "color": "tenue", "discontinua": true },
+            { "tipo": "vector", "desde": [0, 0], "hasta": [3.2, 3.3], "color": "claro" },
+            { "tipo": "texto", "x": 3.45, "y": 2.85, "texto": "$v_1 + 2v_2$", "color": "claro" }
+          ]
+        }
+      },
+      "dorso": {
+        "en_cristiano": "Es una \"receta\": tantas veces $v_1$, más tantas veces $v_2$… El conjunto de todas las recetas posibles es el **subespacio generado** $\\langle v_1, \\dots, v_k \\rangle$.",
+        "ejemplos": [
+          {
+            "enunciado": "¿Es $(3,5)$ combinación lineal de $(1,1)$ y $(0,1)$?",
+            "pasos": ["$\\alpha(1,1) + \\beta(0,1) = (\\alpha,\\ \\alpha + \\beta) = (3,5)$", "$\\alpha = 3$, $\\beta = 2$."],
+            "resultado": "Sí: $(3,5) = 3(1,1) + 2(0,1)$"
+          }
+        ],
+        "relacionadas": ["base-dimension"]
+      }
+    },
+    {
+      "id": "base-dimension",
+      "tipo": "definicion",
+      "titulo": "Base y dimensión",
+      "subtitulo": "El mínimo de vectores que lo genera todo",
+      "etiquetas": ["base", "dimensión", "independencia lineal"],
+      "frente": {
+        "definicion": "$B = \\{v_1, \\dots, v_n\\}$ es **base** de $V$ si es linealmente independiente y genera $V$. Todas las bases tienen la misma cantidad de vectores:",
+        "formula": "\\dim V = \\#B = n"
+      },
+      "dorso": {
+        "en_cristiano": "Una base es un juego de \"direcciones\" sin repetidos (independientes) que alcanza para llegar a cualquier vector. La dimensión es **cuántas direcciones independientes** tiene el espacio.",
+        "requisitos": [
+          "Independencia lineal: $\\sum \\alpha_i v_i = 0 \\Rightarrow$ todos los $\\alpha_i = 0$.",
+          "Generador: todo $v\\in V$ es combinación lineal de $B$."
+        ],
+        "ejemplos": [
+          {
+            "enunciado": "Dimensiones típicas",
+            "pasos": ["$\\dim \\mathbb{R}^n = n$", "$\\dim P_n = n + 1$ (base $1, x, \\dots, x^n$)", "$\\dim \\mathbb{R}^{m\\times n} = m\\cdot n$"]
+          }
+        ],
+        "errores_comunes": ["Pensar que cualquier conjunto de $n$ vectores en un espacio de dimensión $n$ es base: tienen que ser independientes."],
+        "extra": [
+          {
+            "titulo": "Atajo",
+            "texto": "Si $\\dim V = n$, entonces $n$ vectores independientes **ya son base** (no hace falta probar que generan)."
+          }
+        ],
+        "relacionadas": ["combinacion-lineal", "subespacio", "rango"]
+      }
+    }
+  ]
+}

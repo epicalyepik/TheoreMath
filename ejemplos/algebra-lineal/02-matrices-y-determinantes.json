@@ -1,0 +1,160 @@
+{
+  "formato": "theoremath@1",
+  "id": "matrices-y-determinantes",
+  "titulo": "Matrices y Determinantes",
+  "subtitulo": "Rango, inversas y sistemas de ecuaciones",
+  "sigla": "B",
+  "cartas": [
+    {
+      "id": "determinante",
+      "tipo": "formula",
+      "titulo": "Determinante",
+      "subtitulo": "2×2, 3×3 (Sarrus) y Laplace",
+      "etiquetas": ["determinante", "sarrus", "laplace"],
+      "frente": {
+        "formula": "\\begin{vmatrix} a & b \\\\ c & d \\end{vmatrix} = ad - bc",
+        "variantes": [
+          {
+            "nombre": "Laplace por la fila i",
+            "latex": "\\det A = \\sum_{j=1}^{n} (-1)^{i+j}\\, a_{ij}\\, \\det A_{ij}"
+          }
+        ]
+      },
+      "dorso": {
+        "en_cristiano": "El determinante mide **cuánto estira el área (o volumen)** la matriz. Si da 0, la matriz aplasta el espacio a algo más chico: no se puede deshacer.",
+        "ejemplos": [
+          {
+            "enunciado": "$\\det\\begin{pmatrix} 2 & 1 \\\\ 5 & 3 \\end{pmatrix}$",
+            "pasos": ["$2\\cdot3 - 1\\cdot5$"],
+            "resultado": "$1$"
+          }
+        ],
+        "errores_comunes": ["Usar Sarrus en matrices de $4\\times4$ o más: solo vale para $3\\times3$.", "Olvidar el signo $(-1)^{i+j}$ en Laplace."],
+        "extra": [
+          {
+            "titulo": "Truco",
+            "texto": "Desarrollá por la fila o columna con **más ceros**: se anulan esos términos."
+          }
+        ],
+        "relacionadas": ["propiedades-det", "inversa"]
+      }
+    },
+    {
+      "id": "propiedades-det",
+      "tipo": "propiedad",
+      "titulo": "Propiedades del determinante",
+      "subtitulo": "Las que ahorran cuentas",
+      "etiquetas": ["determinante"],
+      "frente": {
+        "axiomas": [
+          "\\det(AB) = \\det A \\cdot \\det B",
+          "\\det(A^T) = \\det A",
+          "\\det(\\alpha A) = \\alpha^n \\det A",
+          "\\det(A^{-1}) = \\dfrac{1}{\\det A}",
+          "\\text{Intercambiar dos filas cambia el signo}",
+          "\\text{Fila nula o filas proporcionales} \\Rightarrow \\det A = 0"
+        ]
+      },
+      "dorso": {
+        "en_cristiano": "Sumarle a una fila un múltiplo de otra **no cambia** el determinante: por eso podés triangular y después multiplicar la diagonal.",
+        "errores_comunes": [
+          "Creer que $\\det(A + B) = \\det A + \\det B$. **Falso** en general.",
+          "Escribir $\\det(\\alpha A) = \\alpha \\det A$: el exponente es $n$, el tamaño de la matriz."
+        ],
+        "ejemplos": [
+          {
+            "enunciado": "Si $A$ es $3\\times3$ con $\\det A = 2$, calcular $\\det(2A^{-1})$.",
+            "pasos": ["$\\det(2A^{-1}) = 2^3 \\det(A^{-1}) = 8 \\cdot \\tfrac12$"],
+            "resultado": "$4$"
+          }
+        ],
+        "relacionadas": ["determinante", "inversa"]
+      }
+    },
+    {
+      "id": "inversa",
+      "tipo": "formula",
+      "titulo": "Matriz inversa",
+      "subtitulo": "Por adjunta",
+      "etiquetas": ["inversa", "adjunta"],
+      "frente": {
+        "hipotesis": ["\\det A \\neq 0"],
+        "formula": "A^{-1} = \\frac{1}{\\det A}\\,\\operatorname{adj}(A)",
+        "variantes": [
+          {
+            "nombre": "Caso 2×2",
+            "latex": "\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}^{-1} = \\frac{1}{ad - bc}\\begin{pmatrix} d & -b \\\\ -c & a \\end{pmatrix}"
+          }
+        ]
+      },
+      "dorso": {
+        "en_cristiano": "Una matriz tiene inversa si y solo si su determinante no es cero. En la de $2\\times2$: **intercambiás** la diagonal, le **cambiás el signo** a la otra y dividís por el determinante.",
+        "cuando_usarlo": "Para matrices chicas. En $3\\times3$ o más grandes suele convenir Gauss-Jordan: $[A \\mid I] \\to [I \\mid A^{-1}]$.",
+        "ejemplos": [
+          {
+            "enunciado": "Invertir $\\begin{pmatrix} 2 & 1 \\\\ 5 & 3 \\end{pmatrix}$",
+            "pasos": ["$\\det = 1$.", "Intercambio y cambio de signo."],
+            "resultado": "$\\begin{pmatrix} 3 & -1 \\\\ -5 & 2 \\end{pmatrix}$"
+          }
+        ],
+        "errores_comunes": ["Olvidar trasponer la matriz de cofactores al armar la adjunta."],
+        "relacionadas": ["determinante", "rouche-frobenius"]
+      }
+    },
+    {
+      "id": "rango",
+      "tipo": "definicion",
+      "titulo": "Rango de una matriz",
+      "subtitulo": "Filas (o columnas) independientes",
+      "etiquetas": ["rango", "gauss"],
+      "frente": {
+        "formula": "\\operatorname{rg}(A) = \\dim \\langle \\text{filas de } A \\rangle = \\dim \\langle \\text{columnas de } A \\rangle"
+      },
+      "dorso": {
+        "en_cristiano": "El rango es **cuánta información de verdad** tiene la matriz: cuántas filas quedan sin anularse después de escalonarla con Gauss.",
+        "ejemplos": [
+          {
+            "enunciado": "$\\operatorname{rg}\\begin{pmatrix} 1 & 2 \\\\ 2 & 4 \\end{pmatrix}$",
+            "pasos": ["$F_2 \\to F_2 - 2F_1$ deja la fila $(0,\\ 0)$."],
+            "resultado": "$\\operatorname{rg} = 1$"
+          }
+        ],
+        "relacionadas": ["rouche-frobenius", "base-dimension"]
+      }
+    },
+    {
+      "id": "rouche-frobenius",
+      "tipo": "teorema",
+      "titulo": "Teorema de Rouché–Frobenius",
+      "subtitulo": "Clasificación de sistemas lineales",
+      "etiquetas": ["sistemas", "rango", "compatibilidad"],
+      "frente": {
+        "hipotesis": ["A x = b,\\ \\ A \\in \\mathbb{K}^{m\\times n}"],
+        "tesis": "\\text{Compatible} \\iff \\operatorname{rg}(A) = \\operatorname{rg}(A \\mid b)",
+        "variantes": [
+          { "nombre": "Determinado", "latex": "\\operatorname{rg}(A) = \\operatorname{rg}(A\\mid b) = n" },
+          { "nombre": "Indeterminado", "latex": "\\operatorname{rg}(A) = \\operatorname{rg}(A\\mid b) < n" }
+        ]
+      },
+      "dorso": {
+        "en_cristiano": "Si agregar la columna de resultados **no sube el rango**, el sistema tiene solución. Si además el rango es igual a la cantidad de incógnitas, la solución es única; si es menor, hay infinitas.",
+        "requisitos": ["$n$ = cantidad de **incógnitas** (columnas de $A$), no de ecuaciones."],
+        "ejemplos": [
+          {
+            "enunciado": "$\\begin{cases} x + y = 2 \\\\ 2x + 2y = 5 \\end{cases}$",
+            "pasos": ["$\\operatorname{rg}(A) = 1$.", "$\\operatorname{rg}(A\\mid b) = 2$."],
+            "resultado": "Incompatible: rectas paralelas."
+          }
+        ],
+        "errores_comunes": ["Comparar el rango con el número de ecuaciones en lugar del de incógnitas."],
+        "extra": [
+          {
+            "titulo": "Grados de libertad",
+            "texto": "Si es indeterminado, la solución depende de $n - \\operatorname{rg}(A)$ parámetros libres."
+          }
+        ],
+        "relacionadas": ["rango", "inversa"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,756 @@
+{
+  "$id": "https://epicalyepik.github.io/TheoreMath/schema/theoremath.schema.json",
+  "title": "TheoreMath (theoremath@1)",
+  "description": "Un nodo: carpeta (con \"hijos\") o mazo (con \"cartas\"). Ver docs/GUIA_FORMATO.md.",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "formato": {
+      "type": "string"
+    },
+    "dentro_de": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "^[a-z0-9][a-z0-9_-]*$"
+    },
+    "titulo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subtitulo": {
+      "type": "string"
+    },
+    "sigla": {
+      "type": "string",
+      "maxLength": 4
+    },
+    "acento": {
+      "type": "string",
+      "enum": [
+        "cian",
+        "rosa"
+      ]
+    },
+    "orden": {
+      "type": "number"
+    },
+    "hijos": {
+      "type": "array",
+      "items": {
+        "$ref": "#"
+      }
+    },
+    "cartas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "^[a-z0-9][a-z0-9_-]*$"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "teorema",
+              "formula",
+              "definicion",
+              "estructura",
+              "propiedad",
+              "metodo"
+            ]
+          },
+          "titulo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "subtitulo": {
+            "type": "string"
+          },
+          "etiquetas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "frente": {
+            "type": "object",
+            "properties": {
+              "hipotesis": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "tesis": {
+                "type": "string",
+                "minLength": 1
+              },
+              "formula": {
+                "type": "string",
+                "minLength": 1
+              },
+              "variantes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "nombre": {
+                      "type": "string"
+                    },
+                    "latex": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "latex"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "definicion": {
+                "type": "string",
+                "minLength": 1
+              },
+              "axiomas": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "pasos": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "grafico": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "items": false,
+                    "minItems": 2,
+                    "maxItems": 2
+                  },
+                  "y": {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "items": false,
+                    "minItems": 2,
+                    "maxItems": 2
+                  },
+                  "ejes": {
+                    "type": "boolean"
+                  },
+                  "cuadricula": {
+                    "type": "boolean"
+                  },
+                  "etiquetas_ejes": {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "items": false,
+                    "minItems": 2,
+                    "maxItems": 2
+                  },
+                  "elementos": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tipo": {
+                              "type": "string",
+                              "const": "funcion"
+                            },
+                            "expr": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "dominio": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ],
+                              "items": false,
+                              "minItems": 2,
+                              "maxItems": 2
+                            },
+                            "discontinua": {
+                              "type": "boolean"
+                            },
+                            "color": {
+                              "type": "string",
+                              "enum": [
+                                "cian",
+                                "rosa",
+                                "tenue",
+                                "claro"
+                              ]
+                            },
+                            "etiqueta": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "tipo",
+                            "expr"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tipo": {
+                              "type": "string",
+                              "const": "parametrica"
+                            },
+                            "x": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "y": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "t": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ],
+                              "items": false,
+                              "minItems": 2,
+                              "maxItems": 2
+                            },
+                            "discontinua": {
+                              "type": "boolean"
+                            },
+                            "color": {
+                              "type": "string",
+                              "enum": [
+                                "cian",
+                                "rosa",
+                                "tenue",
+                                "claro"
+                              ]
+                            },
+                            "etiqueta": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "tipo",
+                            "x",
+                            "y",
+                            "t"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tipo": {
+                              "type": "string",
+                              "const": "punto"
+                            },
+                            "x": {
+                              "type": "number"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "hueco": {
+                              "type": "boolean"
+                            },
+                            "color": {
+                              "type": "string",
+                              "enum": [
+                                "cian",
+                                "rosa",
+                                "tenue",
+                                "claro"
+                              ]
+                            },
+                            "etiqueta": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "tipo",
+                            "x",
+                            "y"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tipo": {
+                              "type": "string",
+                              "const": "segmento"
+                            },
+                            "desde": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ],
+                              "items": false,
+                              "minItems": 2,
+                              "maxItems": 2
+                            },
+                            "hasta": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ],
+                              "items": false,
+                              "minItems": 2,
+                              "maxItems": 2
+                            },
+                            "discontinua": {
+                              "type": "boolean"
+                            },
+                            "color": {
+                              "type": "string",
+                              "enum": [
+                                "cian",
+                                "rosa",
+                                "tenue",
+                                "claro"
+                              ]
+                            },
+                            "etiqueta": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "tipo",
+                            "desde",
+                            "hasta"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tipo": {
+                              "type": "string",
+                              "const": "vector"
+                            },
+                            "desde": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ],
+                              "items": false,
+                              "minItems": 2,
+                              "maxItems": 2
+                            },
+                            "hasta": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ],
+                              "items": false,
+                              "minItems": 2,
+                              "maxItems": 2
+                            },
+                            "color": {
+                              "type": "string",
+                              "enum": [
+                                "cian",
+                                "rosa",
+                                "tenue",
+                                "claro"
+                              ]
+                            },
+                            "etiqueta": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "tipo",
+                            "hasta"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tipo": {
+                              "type": "string",
+                              "const": "recta_v"
+                            },
+                            "x": {
+                              "type": "number"
+                            },
+                            "color": {
+                              "type": "string",
+                              "enum": [
+                                "cian",
+                                "rosa",
+                                "tenue",
+                                "claro"
+                              ]
+                            },
+                            "etiqueta": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "tipo",
+                            "x"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tipo": {
+                              "type": "string",
+                              "const": "recta_h"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "color": {
+                              "type": "string",
+                              "enum": [
+                                "cian",
+                                "rosa",
+                                "tenue",
+                                "claro"
+                              ]
+                            },
+                            "etiqueta": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "tipo",
+                            "y"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tipo": {
+                              "type": "string",
+                              "const": "region"
+                            },
+                            "superior": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "inferior": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "dominio": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ],
+                              "items": false,
+                              "minItems": 2,
+                              "maxItems": 2
+                            },
+                            "color": {
+                              "type": "string",
+                              "enum": [
+                                "cian",
+                                "rosa",
+                                "tenue",
+                                "claro"
+                              ]
+                            },
+                            "etiqueta": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "tipo",
+                            "superior",
+                            "dominio"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tipo": {
+                              "type": "string",
+                              "const": "poligonal"
+                            },
+                            "puntos": {
+                              "minItems": 2,
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "prefixItems": [
+                                  {
+                                    "type": "number"
+                                  },
+                                  {
+                                    "type": "number"
+                                  }
+                                ],
+                                "items": false,
+                                "minItems": 2,
+                                "maxItems": 2
+                              }
+                            },
+                            "cerrada": {
+                              "type": "boolean"
+                            },
+                            "discontinua": {
+                              "type": "boolean"
+                            },
+                            "color": {
+                              "type": "string",
+                              "enum": [
+                                "cian",
+                                "rosa",
+                                "tenue",
+                                "claro"
+                              ]
+                            },
+                            "etiqueta": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "tipo",
+                            "puntos"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tipo": {
+                              "type": "string",
+                              "const": "texto"
+                            },
+                            "x": {
+                              "type": "number"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "texto": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "color": {
+                              "type": "string",
+                              "enum": [
+                                "cian",
+                                "rosa",
+                                "tenue",
+                                "claro"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "tipo",
+                            "x",
+                            "y",
+                            "texto"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "elementos"
+                ],
+                "additionalProperties": false
+              },
+              "nota": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          },
+          "dorso": {
+            "type": "object",
+            "properties": {
+              "en_cristiano": {
+                "type": "string",
+                "minLength": 1
+              },
+              "requisitos": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "idea_demostracion": {
+                "type": "string",
+                "minLength": 1
+              },
+              "ejemplos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "enunciado": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "pasos": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "resultado": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "enunciado"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "errores_comunes": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "cuando_usarlo": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relacionadas": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120,
+                  "pattern": "^[a-z0-9][a-z0-9_-]*$"
+                }
+              },
+              "extra": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "titulo": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "texto": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "titulo",
+                    "texto"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "tipo",
+          "titulo",
+          "frente"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "id",
+    "titulo"
+  ],
+  "additionalProperties": false
+}

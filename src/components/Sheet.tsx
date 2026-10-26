@@ -1,5 +1,6 @@
 import { AnimatePresence, motion, useDragControls } from 'motion/react';
 import { useEffect, useRef, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { IconoCerrar } from './Iconos';
 
 interface Props {
@@ -27,7 +28,9 @@ export function Sheet({ abierta, onCerrar, titulo, children, className }: Props)
     };
   }, [abierta, onCerrar]);
 
-  return (
+  // Portal al body: si la hoja quedara adentro de un elemento con transform (p. ej. una ficha
+  // apretada con :active), el position:fixed se rompe y los clics se pierden.
+  return createPortal(
     <AnimatePresence>
       {abierta && (
         <div className="sheet-capa">
@@ -61,6 +64,7 @@ export function Sheet({ abierta, onCerrar, titulo, children, className }: Props)
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

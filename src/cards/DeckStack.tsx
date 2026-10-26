@@ -1,18 +1,10 @@
 import { animate, motion, motionValue, useMotionValue, useTransform, type MotionValue } from 'motion/react';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type PointerEvent as RPointerEvent, type ReactNode } from 'react';
 import type { CartaT } from '../model/schema';
 import { CardBack, type Relacionada } from './CardBack';
 import { CardFront } from './CardFront';
 
-type Rol = 'prev' | 'top' | 'b1' | 'b2';
-
 const RESORTE = { type: 'spring', stiffness: 420, damping: 40, mass: 0.9 } as const;
-const PROFUNDIDAD: Record<Rol, { scale: number; y: number; rotate: number; z: number }> = {
-  prev: { scale: 1, y: 0, rotate: 0, z: 4 },
-  top: { scale: 1, y: 0, rotate: 0, z: 3 },
-  b1: { scale: 0.955, y: 14, rotate: -1.6, z: 2 },
-  b2: { scale: 0.91, y: 27, rotate: 1.4, z: 1 },
-};
 
 export interface DeckHandle {
   siguiente: () => void;
@@ -43,19 +35,40 @@ const vibrar = () => {
   }
 };
 
-function CartaEnPila({
-  rol,
-  x,
-  rotX,
-  off,
-  children,
-}: {
-  rol: Rol;
-  x: MotionValue<number>;
-  rotX: MotionValue<number>;
-  off: number;
-  children: [React.ReactNode, React.ReactNode];
-}) {
+// En PC y tablet las cartas se apoyan en fila sobre la mesa; en el celular, en una pila.
+const CONSULTA_MESA = '(min-width: 720px) and (min-height: 520px)';
+function useModoMesa(): boolean {
+  return useSyncExternalStore(
+    (f) => {
+      const mq = window.matchMedia(CONSULTA_MESA);
+      mq.addEventListener('change', f);
+      return () => mq.removeEventListener('change', f);
+    },
+    () => window.matchMedia(CONSULTA_MESA).matches,
+  );
+}
+
+/** Una carta con sus dos caras, que gira sobre el eje horizontal. */
+function Volteable({ rotX, frente, dorso, inerte }: { rotX: MotionValue<number>; frente: ReactNode; dorso: ReactNode; inerte: boolean }) {
+  return (
+    <motion.div className="volteo" style={{ rotateX: rotX }} ref={(el: HTMLDivElement | null) => el?.toggleAttribute('inert', inerte)}>
+      <div className="cara cara-frente">{frente}</div>
+      <div className="cara cara-dorso">{dorso}</div>
+    </motion.div>
+  );
+}
+
+// ---------- Celular: pila ----------
+
+type Rol = 'prev' | 'top' | 'b1' | 'b2';
+const PROFUNDIDAD: Record<Rol, { scale: number; y: number; rotate: number; z: number }> = {
+  prev: { scale: 1, y: 0, rotate: 0, z: 4 },
+  top: { scale: 1, y: 0, rotate: 0, z: 3 },
+  b1: { scale: 0.955, y: 14, rotate: -1.6, z: 2 },
+  b2: { scale: 0.91, y: 27, rotate: 1.4, z: 1 },
+};
+
+function CartaEnPila({ rol, x, off, children }: { rol: Rol; x: MotionValue<number>; off: number; children: ReactNode }) {
   const montada = useRef(false);
   const inclinacion = useTransform(x, [-off, 0, off], [-9, 0, 9]);
   useEffect(() => {
@@ -76,34 +89,81 @@ function CartaEnPila({
       animate={{ scale: p.scale, y: p.y, rotate: p.rotate }}
       transition={RESORTE}
       aria-hidden={rol !== 'top'}
-      ref={(el: HTMLDivElement | null) => el?.toggleAttribute('inert', rol !== 'top')}
     >
       <motion.div className="pila-carta" style={{ x, rotate: inclinacion }}>
-        <motion.div className="volteo" style={{ rotateX: rotX }}>
-          <div className="cara cara-frente">{children[0]}</div>
-          <div className="cara cara-dorso">{children[1]}</div>
-        </motion.div>
+        {children}
       </motion.div>
     </motion.div>
   );
 }
 
+// ---------- PC / tablet: mesa ----------
+
+function CartaEnMesa({
+  k,
+  pos,
+  paso,
+  ancho,
+  alto,
+  actual,
+  onElegir,
+  etiqueta,
+  children,
+}: {
+  k: number;
+  pos: MotionValue<number>;
+  paso: number;
+  ancho: number;
+  alto: number;
+  actual: boolean;
+  onElegir: () => void;
+  etiqueta: string;
+  children: ReactNode;
+}) {
+  const d = useTransform(pos, (p) => k - p);
+  const x = useTransform(d, (v) => v * paso);
+  const scale = useTransform(d, (v) => 1 - 0.18 * Math.min(Math.abs(v), 1.4));
+  const brillo = useTransform(d, (v) => `brightness(${1 - 0.42 * Math.min(Math.abs(v), 1.5)})`);
+  const zIndex = useTransform(d, (v) => 100 - Math.round(Math.abs(v) * 10));
+  return (
+    <motion.div className={`mesa-slot ${actual ? 'actual' : ''}`} style={{ x, scale, zIndex, width: ancho, height: alto, marginLeft: -ancho / 2, marginTop: -alto / 2 }} aria-hidden={!actual}>
+      <motion.div className="pila-carta" style={{ filter: brillo }}>
+        {children}
+      </motion.div>
+      {!actual && <button type="button" className="mesa-tapa" onClick={onElegir} aria-label={etiqueta} tabIndex={-1} />}
+    </motion.div>
+  );
+}
+
+// ---------- Mazo ----------
+
 export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica, pista, onVolteo, relacionadas, onIr, manejar }: Props) {
+  const mesa = useModoMesa();
   const pilaRef = useRef<HTMLDivElement>(null);
   const dorsoRef = useRef<HTMLDivElement>(null);
   const xs = useRef(new Map<string, MotionValue<number>>());
+  const pos = useMotionValue(indice);
   const rot = useMotionValue(0);
   const cero = useMotionValue(0);
   const [volteada, setVolteada] = useState(false);
   const [tam, setTam] = useState({ w: 360, h: 600 });
   const off = tam.w * 1.18;
 
+  // Medidas de la carta en la mesa: más chica que en el celular, para que entren varias.
+  const altoMesa = Math.min(tam.h, 760);
+  const anchoMesa = Math.min(altoMesa * 0.56, 420, tam.w * 0.5);
+  const altoCartaMesa = Math.min(altoMesa, anchoMesa / 0.56);
+  const paso = anchoMesa * 0.84;
+  const radio = Math.min(4, Math.ceil(tam.w / 2 / paso) + 1);
+  const altoGiro = mesa ? altoCartaMesa : tam.h;
+
   useLayoutEffect(() => {
     const el = pilaRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => setTam({ w: el.clientWidth, h: el.clientHeight }));
+    const medir = () => setTam({ w: el.clientWidth, h: el.clientHeight });
+    const ro = new ResizeObserver(medir);
     ro.observe(el);
-    setTam({ w: el.clientWidth, h: el.clientHeight });
+    medir();
     return () => ro.disconnect();
   }, []);
 
@@ -118,12 +178,14 @@ export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica,
     return mv;
   };
 
-  // Al cambiar de carta, la nueva arranca mirando el frente.
+  // Al cambiar de carta, la nueva arranca mirando el frente; en la mesa, la fila se desliza hasta ella.
+  const arrastrando = useRef(false);
   useEffect(() => {
     rot.jump(0);
     setVolteada(false);
     if (dorsoRef.current) dorsoRef.current.scrollTop = 0;
-  }, [indice, rot]);
+    if (!arrastrando.current) animate(pos, indice, RESORTE);
+  }, [indice, rot, pos]);
 
   const voltear = useCallback(
     (v?: boolean) => {
@@ -136,19 +198,27 @@ export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica,
     [volteada, cartas, indice, rot, onVolteo],
   );
 
+  const ir = useCallback(
+    (k: number) => {
+      const destino = Math.max(0, Math.min(cartas.length - 1, k));
+      if (destino === indice) return void animate(pos, indice, RESORTE);
+      vibrar();
+      onIndice(destino);
+    },
+    [cartas.length, indice, onIndice, pos],
+  );
+
   const siguiente = useCallback(() => {
     if (indice >= cartas.length - 1) return;
-    vibrar();
-    animate(xDe(indice), -off, RESORTE);
-    onIndice(indice + 1);
-  }, [indice, cartas, off, onIndice]);
+    if (!mesa) animate(xDe(indice), -off, RESORTE);
+    ir(indice + 1);
+  }, [indice, cartas, off, ir, mesa]);
 
   const anterior = useCallback(() => {
     if (indice <= 0) return;
-    vibrar();
-    animate(xDe(indice - 1), 0, RESORTE);
-    onIndice(indice - 1);
-  }, [indice, cartas, onIndice]);
+    if (!mesa) animate(xDe(indice - 1), 0, RESORTE);
+    ir(indice - 1);
+  }, [indice, cartas, ir, mesa]);
 
   useEffect(() => {
     manejar?.({ siguiente, anterior, voltear });
@@ -164,8 +234,31 @@ export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica,
   } | null>(null);
 
   const onPointerDown = (e: RPointerEvent) => {
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (e.pointerType === 'mouse') {
+      if (e.button !== 0) return;
+      // Sin esto el navegador empieza a seleccionar texto y a "arrastrarlo" en vez de mover la carta.
+      if (!(e.target as HTMLElement).closest('.dorso-scroll')) e.preventDefault();
+      window.getSelection()?.removeAllRanges();
+    }
     gesto.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, eje: null, muestras: [{ x: e.clientX, y: e.clientY, t: e.timeStamp }] };
+  };
+
+  const moverHorizontal = (dx: number) => {
+    if (mesa) {
+      const p = indice - dx / paso;
+      const max = cartas.length - 1;
+      pos.set(p < 0 ? p * 0.3 : p > max ? max + (p - max) * 0.3 : p);
+      return;
+    }
+    if (dx <= 0) {
+      xDe(indice).set(indice < cartas.length - 1 ? dx : dx * 0.25);
+      if (indice > 0) xDe(indice - 1).set(-off);
+    } else if (indice > 0) {
+      xDe(indice).set(0);
+      xDe(indice - 1).set(-off + dx);
+    } else {
+      xDe(indice).set(dx * 0.25);
+    }
   };
 
   const onPointerMove = (e: RPointerEvent) => {
@@ -180,27 +273,17 @@ export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica,
       else if (Math.abs(dy) > 10) g.eje = volteada ? 'nada' : 'v';
       else return;
       if (g.eje !== 'nada') (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      if (g.eje === 'h') arrastrando.current = true;
     }
-    if (g.eje === 'h') {
-      if (dx <= 0) {
-        xDe(indice).set(indice < cartas.length - 1 ? dx : dx * 0.25);
-        if (indice > 0) xDe(indice - 1).set(-off);
-      } else if (indice > 0) {
-        xDe(indice).set(0);
-        xDe(indice - 1).set(-off + dx);
-      } else {
-        xDe(indice).set(dx * 0.25);
-      }
-    } else if (g.eje === 'v') {
-      const ang = Math.max(0, Math.min(180, (-dy / (tam.h * 0.55)) * 180));
-      if (cartas[indice]?.dorso) rot.set(ang);
-    }
+    if (g.eje === 'h') moverHorizontal(dx);
+    else if (g.eje === 'v' && cartas[indice]?.dorso) rot.set(Math.max(0, Math.min(180, (-dy / (altoGiro * 0.55)) * 180)));
   };
 
   const terminar = (e: RPointerEvent, cancelado: boolean) => {
     const g = gesto.current;
     if (!g || g.id !== e.pointerId) return;
     gesto.current = null;
+    arrastrando.current = false;
     const dx = e.clientX - g.x0;
     const dy = e.clientY - g.y0;
     const m0 = g.muestras[0];
@@ -209,6 +292,13 @@ export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica,
     const vx = (m1.x - m0.x) / dt;
     const vy = (m1.y - m0.y) / dt;
     if (g.eje === 'h') {
+      if (mesa) {
+        // Con un tirón rápido la fila sigue de largo unas cartas más.
+        const proyectado = cancelado ? indice : pos.get() - (vx * 180) / paso;
+        const destino = Math.round(Math.max(indice - 6, Math.min(indice + 6, proyectado)));
+        ir(destino);
+        return;
+      }
       const umbral = tam.w * 0.26;
       if (!cancelado && (dx < -umbral || vx < -0.45) && indice < cartas.length - 1) siguiente();
       else if (!cancelado && (dx > umbral || vx > 0.45) && indice > 0) anterior();
@@ -245,7 +335,7 @@ export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica,
       }
       if (tirando) {
         e.preventDefault();
-        rot.set(180 - Math.max(0, Math.min(180, (dy / (tam.h * 0.55)) * 180)));
+        rot.set(180 - Math.max(0, Math.min(180, (dy / (altoGiro * 0.55)) * 180)));
       }
     };
     const fin = () => {
@@ -263,60 +353,99 @@ export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica,
       el.removeEventListener('touchend', fin);
       el.removeEventListener('touchcancel', fin);
     };
-  }, [volteada, rot, tam.h, voltear]);
+  }, [volteada, rot, altoGiro, voltear]);
 
-  // Rueda del mouse: abajo en el frente abre el dorso; arriba del todo en el dorso vuelve.
+  // Rueda / touchpad: vertical da vuelta la carta; horizontal pasa de carta.
+  const ruedaH = useRef({ acumulado: 0, hasta: 0 });
   const onWheel = (e: React.WheelEvent) => {
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      const r = ruedaH.current;
+      if (e.timeStamp < r.hasta) return;
+      r.acumulado += e.deltaX;
+      if (Math.abs(r.acumulado) > 60) {
+        if (r.acumulado > 0) siguiente();
+        else anterior();
+        r.acumulado = 0;
+        r.hasta = e.timeStamp + 350;
+      }
+      return;
+    }
     if (!volteada && e.deltaY > 30) voltear(true);
     else if (volteada && e.deltaY < -30 && (dorsoRef.current?.scrollTop ?? 0) <= 0) voltear(false);
   };
 
-  const roles: [number, Rol][] = (
-    [
-      [indice - 1, 'prev'],
-      [indice, 'top'],
-      [indice + 1, 'b1'],
-      [indice + 2, 'b2'],
-    ] as [number, Rol][]
-  ).filter(([k]) => k >= 0 && k < cartas.length);
+  const caras = (k: number, actual: boolean, conDorso: boolean) => {
+    const carta = cartas[k];
+    return (
+      <Volteable
+        rotX={actual ? rot : cero}
+        inerte={!actual}
+        frente={
+          <CardFront carta={carta} numero={numeros[k]} acento={acento} practica={practica} pista={actual && pista} onVoltear={() => voltear(true)} />
+        }
+        dorso={
+          conDorso ? (
+            <CardBack
+              ref={actual ? dorsoRef : undefined}
+              carta={carta}
+              acento={acento}
+              relacionadas={relacionadas(carta)}
+              onIr={onIr}
+              onVolver={() => voltear(false)}
+            />
+          ) : null
+        }
+      />
+    );
+  };
+
+  let contenido: ReactNode;
+  if (mesa) {
+    const ks: number[] = [];
+    for (let k = indice - radio; k <= indice + radio; k++) if (k >= 0 && k < cartas.length) ks.push(k);
+    contenido = ks.map((k) => (
+      <CartaEnMesa
+        key={clave(k)}
+        k={k}
+        pos={pos}
+        paso={paso}
+        ancho={anchoMesa}
+        alto={altoCartaMesa}
+        actual={k === indice}
+        onElegir={() => ir(k)}
+        etiqueta={`Ir a la carta ${numeros[k]}: ${cartas[k].titulo}`}
+      >
+        {caras(k, k === indice, k === indice)}
+      </CartaEnMesa>
+    ));
+  } else {
+    const roles = (
+      [
+        [indice - 1, 'prev'],
+        [indice, 'top'],
+        [indice + 1, 'b1'],
+        [indice + 2, 'b2'],
+      ] as [number, Rol][]
+    ).filter(([k]) => k >= 0 && k < cartas.length);
+    contenido = roles.map(([k, rol]) => (
+      <CartaEnPila key={clave(k)} rol={rol} x={xDe(k)} off={off}>
+        {caras(k, rol === 'top', rol === 'top' || rol === 'prev')}
+      </CartaEnPila>
+    ));
+  }
 
   return (
     <div
       ref={pilaRef}
-      className={`pila ${volteada ? 'volteada' : ''}`}
+      className={`pila ${mesa ? 'modo-mesa' : 'modo-pila'} ${volteada ? 'volteada' : ''}`}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={(e) => terminar(e, false)}
       onPointerCancel={(e) => terminar(e, true)}
+      onDragStart={(e) => e.preventDefault()}
       onWheel={onWheel}
     >
-      {roles.map(([k, rol]) => {
-        const carta = cartas[k];
-        const esTop = rol === 'top';
-        return (
-          <CartaEnPila key={clave(k)} rol={rol} x={xDe(k)} rotX={esTop ? rot : cero} off={off}>
-            <CardFront
-              carta={carta}
-              numero={numeros[k]}
-              acento={acento}
-              practica={practica}
-              pista={esTop && pista}
-              onVoltear={() => voltear(true)}
-            />
-            {esTop || rol === 'prev' ? (
-              <CardBack
-                ref={esTop ? dorsoRef : undefined}
-                carta={carta}
-                acento={acento}
-                relacionadas={relacionadas(carta)}
-                onIr={onIr}
-                onVolver={() => voltear(false)}
-              />
-            ) : null}
-          </CartaEnPila>
-        );
-      })}
+      {contenido}
     </div>
   );
 }

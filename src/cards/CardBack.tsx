@@ -1,6 +1,6 @@
 import { forwardRef, type ReactNode } from 'react';
 import type { CartaT } from '../model/schema';
-import { Prosa } from '../math/Tex';
+import { Prosa } from '../math/Prosa';
 import { CardFrame } from './CardFrame';
 import { Glifo } from './tipos';
 

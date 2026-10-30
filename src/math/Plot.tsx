@@ -1,7 +1,7 @@
 import { memo, useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { ElementoGraficoT, GraficoT } from '../model/schema';
 import { compilar } from './expr';
-import { Prosa } from './Tex';
+import { Prosa } from './Prosa';
 
 const MUESTRAS = 320;
 

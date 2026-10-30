@@ -1,9 +1,9 @@
-import { useState, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import type { CartaT } from '../model/schema';
 import { Plot } from '../math/Plot';
-import { Prosa, Tex } from '../math/Tex';
+import { Formula } from '../math/Formula';
+import { Prosa } from '../math/Prosa';
 import { CardFrame, Regla } from './CardFrame';
-import { Formula } from './Formula';
 import { Glifo, TIPOS, dosDigitos } from './tipos';
 
 interface Props {
@@ -47,12 +47,26 @@ export function CardFront({ carta, numero, acento, practica = false, pista = fal
   const tieneDorso = !!carta.dorso && Object.keys(carta.dorso).length > 0;
   const hayRespuesta = !!(f.tesis || f.formula || f.definicion || f.axiomas?.length || f.variantes?.length || f.pasos?.length);
 
+  // Si el contenido no entra, el frente se vuelve desplazable (y la carta se da vuelta al pasar del final).
+  const cuerpo = useRef<HTMLDivElement>(null);
+  const [desborda, setDesborda] = useState(false);
+  useLayoutEffect(() => {
+    const el = cuerpo.current;
+    if (!el) return;
+    const medir = () => setDesborda(el.scrollHeight > el.clientHeight + 2);
+    const ro = new ResizeObserver(medir);
+    ro.observe(el);
+    Array.from(el.children).forEach((h) => ro.observe(h));
+    medir();
+    return () => ro.disconnect();
+  }, [carta, practica]);
+
   return (
     <CardFrame className="frente" acento={acento}>
       <Indice numero={numero} tipo={carta.tipo} className="ai" />
       <Indice numero={numero} className="bd" />
 
-      <div className="frente-cuerpo">
+      <div ref={cuerpo} className={`frente-cuerpo ${desborda ? 'desborda' : ''}`}>
         <header className="frente-cabeza">
           <p className="kicker">{TIPOS[carta.tipo].nombre}</p>
           <h2 className="carta-titulo">{carta.titulo}</h2>
@@ -87,7 +101,7 @@ export function CardFront({ carta, numero, acento, practica = false, pista = fal
                   <ol className="axiomas">
                     {f.axiomas.map((a, i) => (
                       <li key={i}>
-                        <Tex latex={a} />
+                        <Formula latex={a} enLinea className="axioma" />
                       </li>
                     ))}
                   </ol>
@@ -138,7 +152,7 @@ export function CardFront({ carta, numero, acento, practica = false, pista = fal
           <svg viewBox="0 0 24 12" aria-hidden="true">
             <path d="M4 10 L12 3 L20 10" />
           </svg>
-          {pista && <span>Deslizá para ver ejemplos</span>}
+          {pista && !desborda && <span>Deslizá para ver ejemplos</span>}
         </button>
       )}
       <Regla />

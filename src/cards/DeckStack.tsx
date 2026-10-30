@@ -135,6 +135,72 @@ function CartaEnMesa({
   );
 }
 
+// ---------- Gestos de borde ----------
+
+const desborda = (el: HTMLElement) => el.scrollHeight > el.clientHeight + 2;
+const enElFondo = (el: HTMLElement) => el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+
+/**
+ * En una cara con scroll nativo, pasarse del borde da vuelta la carta:
+ * - 'abajo': en el dorso, arriba del todo y tirando hacia abajo, vuelve al frente;
+ * - 'arriba': en un frente que no entra, abajo del todo y deslizando hacia arriba, muestra el dorso.
+ * La decisión se toma al empezar el gesto, así un scroll normal nunca termina volteando la carta.
+ */
+function useTirarParaVoltear(
+  obtener: () => HTMLElement | null,
+  activo: boolean,
+  sentido: 'abajo' | 'arriba',
+  rot: MotionValue<number>,
+  alto: number,
+  voltear: (v?: boolean) => void,
+  indice: number,
+) {
+  useEffect(() => {
+    const el = obtener();
+    if (!el || !activo) return;
+    let y0 = 0;
+    let x0 = 0;
+    let tirando = false;
+    let decidido = false;
+    const inicio = (e: TouchEvent) => {
+      y0 = e.touches[0].clientY;
+      x0 = e.touches[0].clientX;
+      tirando = false;
+      decidido = false;
+    };
+    const mover = (e: TouchEvent) => {
+      const dy = e.touches[0].clientY - y0;
+      const dx = e.touches[0].clientX - x0;
+      if (!decidido && (Math.abs(dy) > 6 || Math.abs(dx) > 6)) {
+        decidido = true;
+        const vertical = Math.abs(dy) > Math.abs(dx);
+        tirando =
+          vertical && (sentido === 'abajo' ? el.scrollTop <= 0 && dy > 0 : desborda(el) && enElFondo(el) && dy < 0);
+      }
+      if (!tirando) return;
+      e.preventDefault();
+      const ang = Math.max(0, Math.min(180, (Math.abs(dy) / (alto * 0.55)) * 180));
+      rot.set(sentido === 'abajo' ? 180 - ang : ang);
+    };
+    const fin = () => {
+      if (!tirando) return;
+      tirando = false;
+      voltear(sentido === 'abajo' ? rot.get() > 110 : rot.get() > 70);
+    };
+    el.addEventListener('touchstart', inicio, { passive: true });
+    el.addEventListener('touchmove', mover, { passive: false });
+    el.addEventListener('touchend', fin);
+    el.addEventListener('touchcancel', fin);
+    return () => {
+      el.removeEventListener('touchstart', inicio);
+      el.removeEventListener('touchmove', mover);
+      el.removeEventListener('touchend', fin);
+      el.removeEventListener('touchcancel', fin);
+    };
+    // `obtener` lee el DOM de la carta actual: se vuelve a enganchar cuando cambia la carta (indice).
+  }, [activo, sentido, rot, alto, voltear, indice]);
+}
+
 // ---------- Mazo ----------
 
 export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica, pista, onVolteo, relacionadas, onIr, manejar }: Props) {
@@ -180,12 +246,18 @@ export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica,
 
   // Al cambiar de carta, la nueva arranca mirando el frente; en la mesa, la fila se desliza hasta ella.
   const arrastrando = useRef(false);
+  const frenteActual = useCallback(
+    () => pilaRef.current?.querySelector<HTMLElement>('.rol-top .frente-cuerpo, .mesa-slot.actual .frente-cuerpo') ?? null,
+    [],
+  );
   useEffect(() => {
     rot.jump(0);
     setVolteada(false);
     if (dorsoRef.current) dorsoRef.current.scrollTop = 0;
+    const frente = frenteActual();
+    if (frente) frente.scrollTop = 0;
     if (!arrastrando.current) animate(pos, indice, RESORTE);
-  }, [indice, rot, pos]);
+  }, [indice, rot, pos, frenteActual]);
 
   const voltear = useCallback(
     (v?: boolean) => {
@@ -230,6 +302,7 @@ export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica,
     x0: number;
     y0: number;
     eje: 'h' | 'v' | 'nada' | null;
+    tactil: boolean;
     muestras: { x: number; y: number; t: number }[];
   } | null>(null);
 
@@ -237,10 +310,10 @@ export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica,
     if (e.pointerType === 'mouse') {
       if (e.button !== 0) return;
       // Sin esto el navegador empieza a seleccionar texto y a "arrastrarlo" en vez de mover la carta.
-      if (!(e.target as HTMLElement).closest('.dorso-scroll')) e.preventDefault();
+      if (!(e.target as HTMLElement).closest('.dorso-scroll, .frente-cuerpo.desborda')) e.preventDefault();
       window.getSelection()?.removeAllRanges();
     }
-    gesto.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, eje: null, muestras: [{ x: e.clientX, y: e.clientY, t: e.timeStamp }] };
+    gesto.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, eje: null, tactil: e.pointerType !== 'mouse', muestras: [{ x: e.clientX, y: e.clientY, t: e.timeStamp }] };
   };
 
   const moverHorizontal = (dx: number) => {
@@ -270,7 +343,11 @@ export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica,
     if (g.muestras.length > 6) g.muestras.shift();
     if (g.eje === null) {
       if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2) g.eje = 'h';
-      else if (Math.abs(dy) > 10) g.eje = volteada ? 'nada' : 'v';
+      else if (Math.abs(dy) > 10) {
+        // En el dorso, o en un frente que no entra, lo vertical es scroll nativo (y el borde lo maneja useTirarParaVoltear).
+        const frente = frenteActual();
+        g.eje = volteada || (g.tactil && frente && desborda(frente)) ? 'nada' : 'v';
+      }
       else return;
       if (g.eje !== 'nada') (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       if (g.eje === 'h') arrastrando.current = true;
@@ -312,51 +389,14 @@ export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica,
     }
   };
 
-  // Tirar hacia abajo desde arriba del todo en el dorso = volver al frente.
-  useEffect(() => {
-    const el = dorsoRef.current;
-    if (!el || !volteada) return;
-    let y0 = 0;
-    let x0 = 0;
-    let tirando = false;
-    let decidido = false;
-    const inicio = (e: TouchEvent) => {
-      y0 = e.touches[0].clientY;
-      x0 = e.touches[0].clientX;
-      tirando = false;
-      decidido = false;
-    };
-    const mover = (e: TouchEvent) => {
-      const dy = e.touches[0].clientY - y0;
-      const dx = e.touches[0].clientX - x0;
-      if (!decidido && (Math.abs(dy) > 6 || Math.abs(dx) > 6)) {
-        decidido = true;
-        tirando = el.scrollTop <= 0 && dy > 0 && Math.abs(dy) > Math.abs(dx);
-      }
-      if (tirando) {
-        e.preventDefault();
-        rot.set(180 - Math.max(0, Math.min(180, (dy / (altoGiro * 0.55)) * 180)));
-      }
-    };
-    const fin = () => {
-      if (!tirando) return;
-      tirando = false;
-      voltear(rot.get() > 110);
-    };
-    el.addEventListener('touchstart', inicio, { passive: true });
-    el.addEventListener('touchmove', mover, { passive: false });
-    el.addEventListener('touchend', fin);
-    el.addEventListener('touchcancel', fin);
-    return () => {
-      el.removeEventListener('touchstart', inicio);
-      el.removeEventListener('touchmove', mover);
-      el.removeEventListener('touchend', fin);
-      el.removeEventListener('touchcancel', fin);
-    };
-  }, [volteada, rot, altoGiro, voltear]);
+  // Dorso: arriba del todo, tirar hacia abajo = volver al frente.
+  useTirarParaVoltear(() => dorsoRef.current, volteada, 'abajo', rot, altoGiro, voltear, indice);
+  // Frente que no entra: abajo del todo, seguir deslizando hacia arriba = dar vuelta.
+  useTirarParaVoltear(frenteActual, !volteada, 'arriba', rot, altoGiro, voltear, indice);
 
   // Rueda / touchpad: vertical da vuelta la carta; horizontal pasa de carta.
   const ruedaH = useRef({ acumulado: 0, hasta: 0 });
+  const ruedaV = useRef({ ultimoScroll: 0 });
   const onWheel = (e: React.WheelEvent) => {
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
       const r = ruedaH.current;
@@ -370,8 +410,18 @@ export function DeckStack({ cartas, numeros, indice, onIndice, acento, practica,
       }
       return;
     }
-    if (!volteada && e.deltaY > 30) voltear(true);
-    else if (volteada && e.deltaY < -30 && (dorsoRef.current?.scrollTop ?? 0) <= 0) voltear(false);
+    // Si la cara tiene scroll, primero se recorre; recién al llegar al borde (y con la inercia ya frenada) se da vuelta.
+    const r = ruedaV.current;
+    if (!volteada && e.deltaY > 0) {
+      const frente = frenteActual();
+      if (frente && desborda(frente) && !enElFondo(frente)) r.ultimoScroll = e.timeStamp;
+      else if (e.timeStamp - r.ultimoScroll < 450) r.ultimoScroll = e.timeStamp;
+      else if (e.deltaY > 30) voltear(true);
+    } else if (volteada && e.deltaY < 0) {
+      if ((dorsoRef.current?.scrollTop ?? 0) > 0) r.ultimoScroll = e.timeStamp;
+      else if (e.timeStamp - r.ultimoScroll < 450) r.ultimoScroll = e.timeStamp;
+      else if (e.deltaY < -30) voltear(false);
+    }
   };
 
   const caras = (k: number, actual: boolean, conDorso: boolean) => {

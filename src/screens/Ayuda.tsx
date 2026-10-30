@@ -15,7 +15,7 @@ import { avisar } from '../components/Toast';
 import { descargarCopia } from '../import/exportar';
 import { copiarGuia } from '../import/guia';
 import { insertar } from '../import/merge';
-import { Prosa } from '../math/Tex';
+import { Prosa } from '../math/Prosa';
 import { bibliotecaVacia } from '../model/types';
 import { navegar, useRuta } from '../router';
 import { instalar, useInstalacion } from '../store/instalacion';

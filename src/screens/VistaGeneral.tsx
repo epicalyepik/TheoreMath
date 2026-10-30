@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Formula } from '../cards/Formula';
+import { Formula } from '../math/Formula';
 import { Glifo, TIPOS, dosDigitos } from '../cards/tipos';
 import { IconoBuscar, IconoCerrar } from '../components/Iconos';
-import { Prosa } from '../math/Tex';
+import { Prosa } from '../math/Prosa';
 import type { CartaT } from '../model/schema';
 
 interface Props {

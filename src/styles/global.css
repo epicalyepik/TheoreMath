@@ -1076,9 +1076,53 @@ ol {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 16px;
-  padding: 56px 24px 56px;
+  padding: 56px 24px 64px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.frente-cuerpo::-webkit-scrollbar {
+  display: none;
+}
+
+/* Centrado vertical que no corta el principio cuando el contenido desborda. */
+.frente-cuerpo > :first-child {
+  margin-top: auto;
+}
+
+.frente-cuerpo > :last-child {
+  margin-bottom: auto;
+}
+
+/* Cuando no entra: se desplaza, con un fundido arriba y abajo que avisa que hay más. */
+.frente-cuerpo.desborda {
+  mask-image: linear-gradient(180deg, transparent 0, #000 44px, #000 calc(100% - 56px), transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 44px, #000 calc(100% - 56px), transparent 100%);
+}
+
+.pila:not(.volteada) .frente-cuerpo.desborda,
+.pila:not(.volteada) .frente-cuerpo.desborda * {
+  touch-action: pan-y;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .frente-cuerpo.desborda {
+    scrollbar-width: thin;
+    scrollbar-color: var(--borde-fuerte) transparent;
+  }
+
+  .frente-cuerpo.desborda::-webkit-scrollbar {
+    display: block;
+    width: 6px;
+  }
+
+  .frente-cuerpo.desborda::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: var(--borde-fuerte);
+  }
 }
 
 .frente-cabeza {
@@ -1150,6 +1194,28 @@ ol {
 .formula-interior {
   display: inline-block;
   width: max-content;
+  white-space: nowrap;
+}
+
+/* Partida en renglones: KaTeX corta entre sus .katex-base cuando el texto puede envolver. */
+.formula.partida .formula-interior {
+  width: auto;
+  max-width: 100%;
+  white-space: normal;
+  line-height: 1.9;
+}
+
+.formula.partida .katex {
+  white-space: normal;
+}
+
+.formula.en-linea {
+  text-align: left;
+}
+
+.formula.en-prosa {
+  margin: 0.4em 0;
+  color: var(--texto);
 }
 
 .formula .katex-display {
@@ -1182,6 +1248,8 @@ ol {
   display: grid;
   gap: 6px;
   padding: 2px 4px;
+  /* Sin esto la columna de la grilla crece con la fórmula más ancha y se sale de la caja. */
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .axiomas li,
@@ -1203,7 +1271,17 @@ ol {
   color: var(--ac);
 }
 
-.axiomas .tex {
+.axiomas li {
+  align-items: flex-start;
+}
+
+.axiomas li::before {
+  padding-top: 0.5em;
+}
+
+.axiomas .formula {
+  flex: 1;
+  min-width: 0;
   color: var(--texto);
 }
 
@@ -1615,11 +1693,8 @@ ol {
   color: var(--ac);
 }
 
-.prosa .tex-bloque {
-  display: block;
-  overflow-x: auto;
-  overflow-y: hidden;
-  color: var(--texto);
+.prosa .formula.en-prosa .katex-display {
+  margin: 0;
 }
 
 .prosa .katex {
